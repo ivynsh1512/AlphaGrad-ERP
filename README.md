@@ -68,13 +68,29 @@ graph TD
 
 ---
 
-## 4. Deployed Cloudflare Resources
+## 4. Live Production Deployments
 
-- **Worker API:** `https://alphagrad-erp-api.divyansh-shukla.workers.dev`
-- **Database:** `alphagrad-erp-db`
-- **Database ID:** `3b19d090-bc2c-4566-a3be-0b1d1441c095`
-- **Region:** APAC (`apac`)
-- **Tables:** 51 relational tables with strict row-level `school_id` tenant isolation.
+- **Frontend ERP Web App:** [https://alphagrad-web.vercel.app](https://alphagrad-web.vercel.app)
+  - Custom Domain Target: `erp.novaxai.in` (add CNAME `cname.vercel-dns.com` in Cloudflare DNS for `novaxai.in`)
+- **Backend Worker API:** [https://alphagrad-erp-api.divyansh-shukla.workers.dev](https://alphagrad-erp-api.divyansh-shukla.workers.dev)
+- **GitHub Repository:** [https://github.com/ivynsh1512/AlphaGrad-ERP](https://github.com/ivynsh1512/AlphaGrad-ERP)
+- **Cloudflare D1 Database:** `alphagrad-erp-db` (ID: `3b19d090-bc2c-4566-a3be-0b1d1441c095`, APAC)
+- **Active Tables:** 51 relational tables with strict row-level `school_id` tenant isolation.
+
+---
+
+## 5. Custom Domain Setup for `erp.novaxai.in`
+
+To map `erp.novaxai.in` directly to the deployed web app:
+1. In Cloudflare DNS for `novaxai.in`, add a **CNAME** record:
+   - Type: `CNAME`
+   - Name: `erp`
+   - Content: `cname.vercel-dns.com`
+   - Proxy status: DNS only (or Proxied)
+2. In Vercel Project Settings (`alphagrad-web`):
+   - Navigate to **Settings > Domains**
+   - Add `erp.novaxai.in`
+   - Vercel automatically issues and provisions the SSL certificate.
 
 ---
 
