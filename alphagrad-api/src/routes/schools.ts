@@ -39,7 +39,7 @@ schoolsRouter.get("/search", async (c) => {
 });
 
 // Public school config endpoint (for login page branding & feature discovery)
-schoolsRouter.get("/:code/public", async (c) => {
+const getSchoolByCodeHandler = async (c: any) => {
 	const code = c.req.param("code").toLowerCase().trim();
 	const db = createDb(c.env.DB);
 
@@ -98,4 +98,7 @@ schoolsRouter.get("/:code/public", async (c) => {
 		school,
 		features: feat,
 	});
-});
+};
+
+schoolsRouter.get("/:code/public", getSchoolByCodeHandler);
+schoolsRouter.get("/:code", getSchoolByCodeHandler);
