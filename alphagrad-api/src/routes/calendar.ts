@@ -396,7 +396,7 @@ calendarRouter.post("/seed-defaults", requireAuth, requireAdmin, async (c) => {
 				endDate: "2026-08-15",
 				isAllDay: 1,
 				color: "#ef4444",
-				location: "Proventus Academy Grounds",
+				location: "Main Campus Grounds",
 			},
 			{
 				id: "evt-hol-ganesh-2026",

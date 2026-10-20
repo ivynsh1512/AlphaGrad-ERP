@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import {
 	GraduationCap,
@@ -144,6 +145,8 @@ function groupTeacherAssignments(assignments: any[]) {
 }
 
 export default function AdminTeachersPage() {
+	const { school } = useAuth();
+	const schoolCode = school?.code || "";
 	const [teachers, setTeachers] = useState<any[]>([]);
 	const [batches, setBatches] = useState<any[]>([]);
 	const [subjects, setSubjects] = useState<any[]>([]);
@@ -326,7 +329,7 @@ export default function AdminTeachersPage() {
 			};
 
 			const res = await api.teachers.create(payload);
-			const generatedPwd = res.credentials?.password || res.credentials?.defaultPassword || "Proventus@3393";
+			const generatedPwd = res.credentials?.password || res.credentials?.defaultPassword || "School@2026";
 
 			setCreatedCredentials({
 				username: res.credentials.username,
@@ -363,7 +366,7 @@ export default function AdminTeachersPage() {
 		setCreatedCredentials({
 			fullName: teacher.fullName,
 			username: teacher.username,
-			defaultPassword: teacher.password || "Proventus@3393",
+			defaultPassword: teacher.password || "School@2026",
 			userId: teacher.userId,
 			title: "Faculty Login Credentials",
 		});
@@ -551,7 +554,7 @@ export default function AdminTeachersPage() {
 									<div className="flex items-center gap-1.5">
 										<span className="text-[11px] font-semibold text-slate-500">Password:</span>
 										<span className="font-mono font-bold text-slate-900">
-											{revealedPasswords[t.id] ? (t.password || "Proventus@3393") : "••••••••••••"}
+											{revealedPasswords[t.id] ? (t.password || "School@2026") : "••••••••••••"}
 										</span>
 									</div>
 									<div className="flex items-center gap-1">
@@ -566,7 +569,7 @@ export default function AdminTeachersPage() {
 										<button
 											type="button"
 											onClick={() => {
-												navigator.clipboard.writeText(t.password || "Proventus@3393");
+												navigator.clipboard.writeText(t.password || "School@2026");
 												setSuccessMsg(`Copied password for ${t.fullName}`);
 												setTimeout(() => setSuccessMsg(null), 2500);
 											}}
@@ -1190,7 +1193,7 @@ export default function AdminTeachersPage() {
 										required
 										value={formData.email}
 										onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-										placeholder="faculty@proventusacademy.com"
+										placeholder="faculty@school.com"
 										className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-600"
 									/>
 								</div>
@@ -1368,7 +1371,7 @@ export default function AdminTeachersPage() {
 							<div className="p-3 bg-indigo-50/70 rounded-xl border border-indigo-100 text-[11px] text-indigo-900">
 								<span className="font-semibold">Auto-Generated Password:</span> A secure unique password (e.g.{" "}
 								<code className="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-indigo-700">
-									Proventus@3393
+									School@2026
 								</code>
 								) will be automatically created and displayed upon creation.
 							</div>
@@ -1599,7 +1602,8 @@ export default function AdminTeachersPage() {
 						<div className="pt-2 flex flex-col gap-2">
 							<button
 								onClick={() => {
-									const text = `Proventus Academy Faculty Login:\nName: ${createdCredentials.fullName}\nUsername: ${createdCredentials.username}\nPassword: ${createdCredentials.defaultPassword}\nPortal: https://proventusacademy.com/login`;
+									const portalUrl = typeof window !== "undefined" ? `${window.location.origin}/${schoolCode}/login` : "";
+									const text = `${school?.name || "School"} Faculty Login:\nName: ${createdCredentials.fullName}\nUsername: ${createdCredentials.username}\nPassword: ${createdCredentials.defaultPassword}\nPortal: ${portalUrl}`;
 									navigator.clipboard.writeText(text);
 									setCopied(true);
 									setTimeout(() => setCopied(false), 2000);

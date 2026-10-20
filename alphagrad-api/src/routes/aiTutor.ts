@@ -60,7 +60,7 @@ aiTutorRouter.get("/profile", requireAuth, async (c) => {
 	});
 });
 
-// 2. Chat with Proventus AI Tutor
+// 2. Chat with AI Tutor
 const chatSchema = z.object({
 	conversationId: z.string().optional(),
 	question: z.string().min(1, "Question cannot be empty"),
@@ -77,7 +77,7 @@ aiTutorRouter.post("/chat", requireAuth, async (c) => {
 	const config = await getAiConfiguration(db);
 
 	if (!config.isTutorEnabled) {
-		return c.json({ error: "Proventus AI Tutor is currently disabled by institute administration." }, 403);
+		return c.json({ error: "AI Tutor is currently disabled by institute administration." }, 403);
 	}
 
 	const body = await c.req.json().catch(() => null);
@@ -298,7 +298,7 @@ aiTutorRouter.post("/chat", requireAuth, async (c) => {
 		});
 
 		return c.json({
-			error: error?.message || "Failed to generate answer from Proventus AI Tutor",
+			error: error?.message || "Failed to generate answer from AI Tutor",
 		}, 500);
 	}
 });

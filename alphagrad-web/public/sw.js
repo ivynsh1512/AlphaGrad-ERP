@@ -1,5 +1,5 @@
-// Proventus Academy Service Worker
-const CACHE_NAME = "proventus-cache-v1";
+// AlphaGrad ERP Service Worker
+const CACHE_NAME = "alphagrad-cache-v1";
 const OFFLINE_URL = "/";
 
 const STATIC_ASSETS = [

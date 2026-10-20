@@ -577,7 +577,7 @@ export default function AdminFeesPage() {
 																	studentName: ob.fullName,
 																	studentUsername: ob.username,
 																	admissionNumber: ob.admissionNumber,
-																	batchName: "Proventus Academic Batch",
+																	batchName: (ob as any).batchName || "Academic Batch",
 																	amountPaidInRupees: ob.paidAmountInRupees,
 																	paymentMode: "ONLINE / CASH COUNTER",
 																	installmentTitle: ob.installmentTitle,

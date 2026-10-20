@@ -27,7 +27,7 @@ import {
 } from "../db/schema";
 import { requireAuth, requireAdmin } from "../middleware/auth";
 import { generateNextUsername } from "../auth/username";
-import { hashPassword, generateProventusPassword } from "../auth/passwords";
+import { hashPassword, generateSchoolPassword } from "../auth/passwords";
 
 const studentsRouter = new Hono<{ Bindings: Bindings }>();
 
@@ -191,7 +191,7 @@ studentsRouter.post("/", requireAuth, requireAdmin, async (c) => {
 		const db = createDb(c.env.DB);
 
 		const username = await generateNextUsername(db);
-		const defaultPassword = generateProventusPassword();
+		const defaultPassword = generateSchoolPassword();
 		const hashedPassword = await hashPassword(defaultPassword);
 
 		const userId = crypto.randomUUID();
@@ -201,7 +201,7 @@ studentsRouter.post("/", requireAuth, requireAdmin, async (c) => {
 		const email =
 			data.email && data.email.trim() !== ""
 				? data.email.trim()
-				: `${username.toLowerCase()}@proventusacademy.internal`;
+				: `${username.toLowerCase()}@alphagrad.internal`;
 		const phone = data.phone && data.phone.trim() !== "" ? data.phone.trim() : null;
 
 		// 1. Create User

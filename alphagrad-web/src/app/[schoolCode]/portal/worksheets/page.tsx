@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 export default function StudentWorksheetsPage() {
-	const { user } = useAuth();
+	const { user, school } = useAuth();
 	const [academicProfile, setAcademicProfile] = useState<any>(null);
 	const [savedWorksheets, setSavedWorksheets] = useState<any[]>([]);
 	const [activeWorksheet, setActiveWorksheet] = useState<any | null>(null);
@@ -351,23 +351,23 @@ export default function StudentWorksheetsPage() {
 
 					{activeWorksheet ? (
 						<div className="bg-white rounded-2xl border border-slate-300 p-6 sm:p-8 shadow-sm space-y-6 print:border-none print:shadow-none print:p-0">
-							{/* Official Proventus Academy Institute Branding Header */}
+							{/* Official Institute Branding Header */}
 							<div className="border-b-2 border-slate-900 pb-4 flex items-center justify-between">
 								<div className="flex items-center space-x-3">
 									<div className="w-12 h-12 rounded-xl overflow-hidden bg-white border border-slate-200 p-1 shadow-xs shrink-0 flex items-center justify-center">
-										<img src="/logo.png" alt="Proventus Academy" className="w-full h-full object-contain" />
+										<img src={school?.logoUrl || "/logo.png"} alt={school?.name || "School Logo"} className="w-full h-full object-contain" />
 									</div>
 									<div>
 										<h2 className="text-lg font-black text-slate-900 tracking-tight leading-none">
-											Proventus Academy
+											{school?.name || "School Institute"}
 										</h2>
 										<p className="text-[11px] font-semibold text-indigo-600 mt-1">
-											Educate • Equilibrate • Elevate | Academic Assessment Practice
+											{school?.tagline || "Academic Assessment Practice"}
 										</p>
 									</div>
 								</div>
 								<div className="text-right text-[11px] text-slate-600 font-medium">
-									<p>Bangalore 560077</p>
+									<p>{school?.city ? `${school?.city}, ${school?.state || ""}` : "Examination Center"}</p>
 									<p className="font-mono text-slate-800 font-bold">{academicProfile?.className || "Grade 11"}</p>
 								</div>
 							</div>
@@ -471,7 +471,7 @@ export default function StudentWorksheetsPage() {
 									{showSolutions ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
 									<span>{showSolutions ? "Hide Answer Key & Solutions" : "Reveal Answer Key & Worked Solutions"}</span>
 								</button>
-								<span className="text-slate-400">Proventus Academy Quality Verified Assessment</span>
+								<span className="text-slate-400">{school?.name || "School"} Quality Verified Assessment</span>
 							</div>
 						</div>
 					) : (

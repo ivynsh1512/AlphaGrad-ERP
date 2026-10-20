@@ -50,9 +50,6 @@ export default function SchoolLoginPage() {
 		? Object.entries(features).filter(([k, v]) => v === 1 && k !== "updatedAt").length
 		: 20;
 
-	const isProventus = schoolCode === "proventus";
-	const isZenith = schoolCode === "zenith";
-
 	return (
 		<div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 selection:bg-indigo-500 selection:text-white">
 			<div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
@@ -145,86 +142,11 @@ export default function SchoolLoginPage() {
 						</button>
 					</form>
 
-					{/* Quick Testing Credential Chips */}
-					<div className="mt-6 pt-5 border-t border-slate-100">
-						<div className="flex items-center justify-between text-xs text-slate-500 mb-2.5">
-							<span className="font-semibold text-slate-700">Quick Test Credentials:</span>
-							<span className="text-[11px] text-indigo-600 font-medium">Click to Fill</span>
-						</div>
-
-						{isProventus ? (
-							<div className="space-y-2">
-								<button
-									type="button"
-									onClick={() => quickFill("Alpha1000", "Proventus@2026")}
-									className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 text-xs flex items-center justify-between transition-colors group"
-								>
-									<div>
-										<span className="font-semibold text-slate-800 group-hover:text-indigo-700">
-											School Administrator:
-										</span>{" "}
-										<span className="font-mono text-slate-600">Alpha1000</span>
-									</div>
-									<span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-medium">
-										Admin
-									</span>
-								</button>
-
-								<button
-									type="button"
-									onClick={() => quickFill("Alpha1933", "Proventus@2026")}
-									className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-xs flex items-center justify-between transition-colors group"
-								>
-									<div>
-										<span className="font-semibold text-slate-800 group-hover:text-emerald-700">
-											Subject Faculty (Math):
-										</span>{" "}
-										<span className="font-mono text-slate-600">Alpha1933</span>
-									</div>
-									<span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
-										Teacher
-									</span>
-								</button>
-
-								<button
-									type="button"
-									onClick={() => quickFill("Alpha1935", "Proventus@2026")}
-									className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 hover:border-purple-200 border border-slate-200 text-xs flex items-center justify-between transition-colors group"
-								>
-									<div>
-										<span className="font-semibold text-slate-800 group-hover:text-purple-700">
-											Student & Parent:
-										</span>{" "}
-										<span className="font-mono text-slate-600">Alpha1935</span>
-									</div>
-									<span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-medium">
-										Student
-									</span>
-								</button>
-							</div>
-						) : isZenith ? (
-							<div className="space-y-2">
-								<button
-									type="button"
-									onClick={() => quickFill("Zenith1000", "Zenith@2026")}
-									className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-xs flex items-center justify-between transition-colors group"
-								>
-									<div>
-										<span className="font-semibold text-slate-800 group-hover:text-emerald-700">
-											School Administrator:
-										</span>{" "}
-										<span className="font-mono text-slate-600">Zenith1000</span>
-									</div>
-									<span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">
-										Admin
-									</span>
-								</button>
-							</div>
-						) : (
-							<div className="text-xs text-slate-500 italic">
-								Please enter credentials provided by your Institute Administrator.
-							</div>
-						)}
+					{/* Portal Credentials Guidance */}
+					<div className="mt-6 pt-5 border-t border-slate-100 text-center">
+						<p className="text-xs text-slate-500">
+							Please enter credentials provided by your Institute Administrator.
+						</p>
 					</div>
 
 					{/* Active Modules Indicator */}

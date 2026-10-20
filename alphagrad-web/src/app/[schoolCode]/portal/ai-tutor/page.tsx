@@ -38,7 +38,7 @@ interface ConversationItem {
 }
 
 export default function StudentAiTutorPage() {
-	const { user } = useAuth();
+	const { user, school } = useAuth();
 	const [academicProfile, setAcademicProfile] = useState<any>(null);
 	const [selectedBoard, setSelectedBoard] = useState<"CBSE" | "ICSE" | "NIOS">("CBSE");
 	const [previewGradeId, setPreviewGradeId] = useState<string>("");
@@ -102,7 +102,7 @@ export default function StudentAiTutorPage() {
 					}
 				}
 			} catch (err: any) {
-				setError(err?.message || "Failed to initialize Proventus AI Tutor");
+				setError(err?.message || "Failed to initialize AI Tutor");
 			} finally {
 				setInitialLoading(false);
 			}
@@ -203,7 +203,7 @@ export default function StudentAiTutorPage() {
 				setConversations((prev) => [newConv, ...prev]);
 			}
 		} catch (err: any) {
-			setError(err?.message || "Proventus AI Tutor encountered a network or quota error. Please try again.");
+			setError(err?.message || "AI Tutor encountered a network or quota error. Please try again.");
 		} finally {
 			setLoading(false);
 		}
@@ -226,7 +226,7 @@ export default function StudentAiTutorPage() {
 		return (
 			<div className="h-full flex flex-col items-center justify-center space-y-3">
 				<div className="w-9 h-9 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-				<p className="text-xs font-semibold text-slate-600">Connecting to Proventus AI Tutor...</p>
+				<p className="text-xs font-semibold text-slate-600">Connecting to {school?.name || "AlphaGrad"} AI Tutor...</p>
 			</div>
 		);
 	}
@@ -246,7 +246,7 @@ export default function StudentAiTutorPage() {
 					</div>
 					<div>
 						<div className="flex items-center gap-1.5">
-							<h1 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">Proventus AI Tutor</h1>
+							<h1 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">{school?.name || "AlphaGrad"} AI Tutor</h1>
 							<span className="hidden sm:inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
 								24/7 Verified
 							</span>

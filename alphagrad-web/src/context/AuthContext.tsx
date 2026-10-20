@@ -26,8 +26,11 @@ export interface School {
 	tagline?: string;
 	logoUrl?: string;
 	themePrimary?: string;
+	address?: string;
 	city?: string;
 	state?: string;
+	contactPhone?: string;
+	contactEmail?: string;
 	status?: string;
 }
 
@@ -136,12 +139,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	};
 
 	const logout = () => {
-		const currentCode = school?.code || localStorage.getItem("alphagrad_school_code") || "proventus";
+		const currentCode = school?.code || localStorage.getItem("alphagrad_school_code");
 		setUser(null);
 		setFeatures(null);
 		localStorage.removeItem("alphagrad_token");
 		localStorage.removeItem("alphagrad_user");
-		router.push(`/${currentCode}/login`);
+		if (currentCode) {
+			router.push(`/${currentCode}/login`);
+		} else {
+			router.push("/");
+		}
 	};
 
 	const superLogout = () => {

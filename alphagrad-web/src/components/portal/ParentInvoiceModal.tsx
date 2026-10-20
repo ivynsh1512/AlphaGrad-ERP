@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import {
   Printer,
   Download,
@@ -74,6 +75,15 @@ async function urlToBase64(url: string): Promise<string> {
 }
 
 export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps) {
+  const { school } = useAuth();
+  const schoolName = school?.name || "School Institute";
+  const schoolTagline = school?.tagline || "Excellence in Education";
+  const schoolLogo = school?.logoUrl || "/logo.png";
+  const schoolAddress = school?.address || "Main Campus";
+  const schoolCity = school?.city ? `${school?.city}, ${school?.state || "India"}` : "India";
+  const schoolPhone = school?.contactPhone || "+91 91083 96010";
+  const schoolEmail = school?.contactEmail || "contact@alphagrad.in";
+
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const printableRef = useRef<HTMLDivElement>(null);
@@ -96,7 +106,7 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
   const handleCopyLink = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(
-        `Proventus Academy Official Tax Receipt #${invoice.receiptNumber}\nStudent: ${invoice.studentName} (${invoice.studentUsername})\nAmount Paid: ₹${invoice.amountPaidInRupees.toLocaleString("en-IN")}\nDate: ${invoice.paymentDate}\nStatus: Verified`
+        `${schoolName} Official Tax Receipt #${invoice.receiptNumber}\nStudent: ${invoice.studentName} (${invoice.studentUsername})\nAmount Paid: ₹${invoice.amountPaidInRupees.toLocaleString("en-IN")}\nDate: ${invoice.paymentDate}\nStatus: Verified`
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
@@ -122,7 +132,7 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tax Invoice ${invoice.receiptNumber} - Proventus Academy</title>
+  <title>Tax Invoice ${invoice.receiptNumber} - ${schoolName}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -486,14 +496,14 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
       <!-- Letterhead -->
       <div class="header-table">
         <div class="inst-left">
-          <img src="${logoDataUri}" alt="Proventus Academy Logo" class="inst-logo" width="72" height="72" />
+          <img src="${logoDataUri}" alt="${schoolName} Logo" class="inst-logo" width="72" height="72" />
           <div>
-            <div class="inst-title">PROVENTUS ACADEMY</div>
-            <div class="inst-tagline">Educate · Equilibrate · Elevate</div>
+            <div class="inst-title">${schoolName.toUpperCase()}</div>
+            <div class="inst-tagline">${schoolTagline}</div>
             <div class="inst-meta">
-              Campus: Kothanur, Bangalore 560077, Karnataka, India<br>
-              Helpline: +91 91083 96010 • Email: contact@proventusacademy.com<br>
-              Accredited NIOS Study & Coaching Center (Academic Session 2026–27)
+              Campus: ${schoolAddress}, ${schoolCity}<br>
+              Helpline: ${schoolPhone} • Email: ${schoolEmail}<br>
+              Official Academic Session 2026–27
             </div>
           </div>
         </div>
@@ -520,7 +530,7 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
           </div>
           <div class="info-row">
             <span class="info-label">Cohort / Batch:</span>
-            <span class="info-value">${invoice.batchName || "Proventus Academic Batch"}</span>
+            <span class="info-value">${invoice.batchName || `${schoolName} Academic Batch`}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Academic Year:</span>
@@ -581,7 +591,7 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
           <tr>
             <td class="td-num">03</td>
             <td>
-              <div class="item-title" style="color: #475569;">Proventus Student & Parent Portal & Chapter Portion Tracker</div>
+              <div class="item-title" style="color: #475569;">${schoolName} Student & Parent Portal & Chapter Portion Tracker</div>
               <div class="item-sub">Student and parent mobile app & 24/7 portion progress access</div>
             </td>
             <td style="font-family: ui-monospace, monospace; color: #94a3b8;">999293</td>
@@ -623,10 +633,10 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
 
         <div style="text-align: right;">
           <div class="stamp-box">
-            <div class="stamp-inst">PROVENTUS ACADEMY</div>
-            <div class="stamp-badge">PA</div>
+            <div class="stamp-inst">${schoolName.toUpperCase()}</div>
+            <div class="stamp-badge">VERIFIED</div>
             <div class="stamp-dept">ACCOUNTS & AUDIT</div>
-            <div class="stamp-city">BANGALORE 560077</div>
+            <div class="stamp-city">${schoolCity.toUpperCase()}</div>
           </div>
         </div>
       </div>
@@ -634,7 +644,7 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
       <!-- Bottom Attribution Bar: MUST show ShelfOne POS Logo & attribution, NO AlphaGrad -->
       <div class="footer-bar">
         <div>
-          <strong>Proventus Academy Bangalore</strong> • Accounts & Finance Office
+          <strong>${schoolName}</strong> • Accounts & Finance Office
         </div>
 
         <div class="shelfone-badge">
@@ -760,12 +770,12 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
           <div className="border-b-2 border-indigo-600 pb-6 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5">
               
-              {/* Left Branding with Proventus Academy Logo */}
+              {/* Left Branding with Dynamic School Logo */}
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-slate-200 overflow-hidden bg-white p-1.5 shrink-0 shadow-xs flex items-center justify-center">
                   <img
-                    src="/logo.png"
-                    alt="Proventus Academy Logo"
+                    src={schoolLogo}
+                    alt={`${schoolName} Logo`}
                     width={72}
                     height={72}
                     style={{ width: "72px", height: "72px", objectFit: "contain" }}
@@ -774,15 +784,15 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
                 </div>
                 <div>
                   <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                    PROVENTUS ACADEMY
+                    {schoolName.toUpperCase()}
                   </h1>
                   <p className="text-[11px] font-bold text-indigo-700 uppercase tracking-widest mt-0.5">
-                    Educate · Equilibrate · Elevate
+                    {schoolTagline}
                   </p>
                   <p className="text-xs text-slate-500 mt-1 max-w-sm leading-relaxed">
-                    Campus: Kothanur, Bangalore 560077, Karnataka, India<br />
-                    Helpline: +91 91083 96010 • Email: contact@proventusacademy.com<br />
-                    Accredited NIOS Study & Coaching Center (Academic Session 2026–27)
+                    Campus: {schoolAddress}, {schoolCity}<br />
+                    Helpline: {schoolPhone} • Email: {schoolEmail}<br />
+                    Official Academic Session 2026–27
                   </p>
                 </div>
               </div>
@@ -823,7 +833,7 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Cohort / Batch:</span>
-                <span className="font-semibold text-slate-800">{invoice.batchName || "Proventus Academic Batch"}</span>
+                <span className="font-semibold text-slate-800">{invoice.batchName || `${schoolName} Academic Batch`}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Academic Year:</span>
@@ -903,7 +913,7 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
                   <td className="py-3 px-4 font-mono text-slate-400">03</td>
                   <td className="py-3 px-4">
                     <div className="font-semibold text-slate-700">
-                      Proventus Student & Parent Portal & Chapter Portion Tracker
+                      {schoolName} Student & Parent Portal & Chapter Portion Tracker
                     </div>
                     <div className="text-[11px] text-slate-400 mt-0.5">
                       Student and parent mobile app & 24/7 portion progress access
@@ -974,16 +984,16 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
             <div className="flex justify-start sm:justify-end">
               <div className="w-48 p-3 rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50/40 text-center space-y-1">
                 <div className="text-[10px] font-black uppercase tracking-wider text-indigo-900">
-                  PROVENTUS ACADEMY
+                  {schoolName.toUpperCase()}
                 </div>
                 <div className="w-9 h-9 rounded-full border border-indigo-400 bg-white mx-auto flex items-center justify-center text-[10px] font-black text-indigo-700 shadow-inner">
-                  PA
+                  VERIFIED
                 </div>
                 <div className="text-[9px] font-bold text-emerald-700 uppercase">
                   ACCOUNTS & AUDIT
                 </div>
                 <div className="text-[9px] text-slate-400 font-mono">
-                  BANGALORE 560077
+                  {schoolCity.toUpperCase()}
                 </div>
               </div>
             </div>
@@ -993,7 +1003,7 @@ export function ParentInvoiceModal({ invoice, onClose }: ParentInvoiceModalProps
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="font-medium text-slate-600">Proventus Academy Bangalore • Accounts Office</span>
+              <span className="font-medium text-slate-600">{schoolName} • Accounts Office</span>
             </div>
 
             {/* Official ShelfOne POS Attribution with Logo */}

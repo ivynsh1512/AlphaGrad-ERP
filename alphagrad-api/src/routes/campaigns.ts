@@ -12,13 +12,13 @@ const DEFAULT_FALLBACK_CAMPAIGN = {
 	id: "camp-default-regular",
 	title: "Continuous Academic Excellence",
 	campaignType: "regular",
-	headline: "Elevate Your Academic Potential with Proventus Academy",
-	subheadline: "Dedicated NIOS Open Schooling & Foundation Coaching in Kothanur, Bangalore",
+	headline: "Elevate Your Academic Potential",
+	subheadline: "Dedicated Coaching & Comprehensive Curriculum",
 	description:
-		"Empowering students across Grades 1–12 and NIOS 10th with personalized 15-student cohorts, 24/7 AI Doubt Solving, rigorous worksheets, and structured exam test series.",
+		"Empowering students across all grades with personalized cohorts, 24/7 AI Doubt Solving, rigorous worksheets, and structured exam test series.",
 	ctaText: "Explore Courses & Portal",
 	ctaUrl: "/contact",
-	secondaryCtaText: "Meet Proventus AI Tutor",
+	secondaryCtaText: "Meet AI Tutor",
 	secondaryCtaUrl: "/portal/ai-tutor",
 	badgeText: "Academic Year 2026–2027",
 	bannerImageUrl: "/logo.png",
@@ -29,10 +29,10 @@ const DEFAULT_FALLBACK_CAMPAIGN = {
 	priority: 0,
 	isActive: 1,
 	isDefault: 1,
-	seoTitle: "Proventus Academy — Premier NIOS Admissions & CBSE ICSE Coaching Bangalore",
+	seoTitle: "Academic Enrollment & Educational Portal",
 	seoDescription:
-		"Proventus Academy (Kothanur, Bangalore) provides premier NIOS Open Schooling, CBSE/ICSE Foundation Coaching, and 24/7 AI-powered tutoring.",
-	seoKeywords: JSON.stringify(["Proventus Academy", "NIOS Bangalore", "Coaching Kothanur", "AI Tutor Bangalore"]),
+		"Providing premier schooling, foundation coaching, and 24/7 AI-powered tutoring.",
+	seoKeywords: JSON.stringify(["School Enrollment", "Foundation Coaching", "AI Tutor"]),
 };
 
 // 1. Public / Client: Get Authoritatively Active Seasonal Campaign

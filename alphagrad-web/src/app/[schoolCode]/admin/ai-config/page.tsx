@@ -144,7 +144,7 @@ export default function AdminAiConfigPage() {
 					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 						<label className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between cursor-pointer">
 							<div>
-								<span className="font-bold text-xs text-slate-900 block">Proventus AI Tutor</span>
+								<span className="font-bold text-xs text-slate-900 block">AI Student Tutor</span>
 								<span className="text-[11px] text-slate-500">Student doubt solving</span>
 							</div>
 							<input
@@ -297,7 +297,7 @@ export default function AdminAiConfigPage() {
 				{/* 5. Additional System Prompt Ethos */}
 				<div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-3">
 					<label className="font-bold text-slate-900 text-xs block">
-						Proventus Academy Institutional Ethos & Pedagogical Instructions
+						School Institutional Ethos & Pedagogical Instructions
 					</label>
 					<textarea
 						rows={3}

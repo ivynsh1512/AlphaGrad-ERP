@@ -292,7 +292,7 @@ submissionsRouter.post("/:id/ai-grade", requireTeacher, async (c) => {
 		return c.json({ message: "No subjective questions require AI evaluation.", answers });
 	}
 
-	const prompt = `You are the Proventus Academy Senior Examiner evaluating student responses.
+	const prompt = `You are the Senior Examiner evaluating student responses.
 For each question below, evaluate the student's answer against the required concept. Propose a fair mark and concise constructive feedback.
 
 Questions & Student Answers:
@@ -316,7 +316,7 @@ Return pure JSON matching this structure:
 			messages: [
 				{
 					role: "system",
-					content: "You are the Proventus Academy Exam Grading Assistant. Return pure JSON with accurate proposed marks and actionable student feedback.",
+					content: "You are the Exam Grading Assistant. Return pure JSON with accurate proposed marks and actionable student feedback.",
 				},
 				{ role: "user", content: prompt },
 			],

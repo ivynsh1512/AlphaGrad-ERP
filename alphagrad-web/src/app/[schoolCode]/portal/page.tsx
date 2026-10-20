@@ -66,7 +66,7 @@ interface RemarkItem {
 }
 
 export default function StudentPortalHomePage() {
-  const { user } = useAuth();
+  const { user, school } = useAuth();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [attendance, setAttendance] = useState<AttendanceSummary | null>(null);
   const [fees, setFees] = useState<FeeSummary | null>(null);
@@ -316,7 +316,7 @@ export default function StudentPortalHomePage() {
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center space-x-2">
               <Bell className="w-4 h-4 text-sky-600" />
-              <h2 className="text-sm font-bold text-slate-900">Proventus Academy Notices</h2>
+              <h2 className="text-sm font-bold text-slate-900">{school?.name || "School"} Announcements & Notices</h2>
             </div>
           </div>
 

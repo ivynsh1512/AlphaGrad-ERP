@@ -1,4 +1,4 @@
-// Groq API Client for Proventus Academy Cloudflare Worker
+// Groq API Client for AlphaGrad ERP Cloudflare Worker
 
 export interface ChatMessage {
 	role: "system" | "user" | "assistant";

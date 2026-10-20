@@ -1,4 +1,4 @@
-// API client for Proventus Academy ERP Cloudflare Worker API
+// API client for AlphaGrad Multi-Tenant ERP Cloudflare Worker API
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://alphagrad-erp-api.divyansh-shukla.workers.dev";
 
@@ -7,7 +7,7 @@ function getAuthHeader(): Record<string, string> {
 	const isSuperAdmin = window.location.pathname.startsWith("/super-admin");
 	const token = isSuperAdmin
 		? localStorage.getItem("alphagrad_super_token")
-		: (localStorage.getItem("alphagrad_token") || localStorage.getItem("proventus_token"));
+		: localStorage.getItem("alphagrad_token");
 
 	const parts = window.location.pathname.split("/").filter(Boolean);
 	const schoolCode = localStorage.getItem("alphagrad_school_code") || (parts[0] && parts[0] !== "super-admin" ? parts[0] : null);

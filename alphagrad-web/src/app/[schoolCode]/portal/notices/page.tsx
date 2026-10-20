@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import { Bell, Pin, Calendar, AlertCircle, Sparkles, School } from "lucide-react";
 
 export default function StudentNoticesPage() {
+  const { school } = useAuth();
   const [notices, setNotices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +112,7 @@ export default function StudentNoticesPage() {
                   <div className="flex items-center gap-1.5">
                     <School className="w-3.5 h-3.5 text-indigo-600" />
                     <span>
-                      Issued by: <strong className="text-slate-700">{n.publisherName || "Proventus Academy"}</strong>
+                      Issued by: <strong className="text-slate-700">{n.publisherName || school?.name || "School Administration"}</strong>
                     </span>
                   </div>
                   <span className="text-[10px] text-slate-400 uppercase font-mono">

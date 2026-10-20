@@ -96,7 +96,7 @@ aiAdminRouter.put("/config", async (c) => {
 		await db.update(aiConfigurations).set(payload).where(eq(aiConfigurations.id, existing[0].id));
 	} else {
 		payload.id = `ai-config-${crypto.randomUUID()}`;
-		payload.instituteId = "proventus-academy";
+		payload.instituteId = tenant.schoolId;
 		await db.insert(aiConfigurations).values(payload);
 	}
 

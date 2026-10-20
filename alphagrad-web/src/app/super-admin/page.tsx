@@ -702,7 +702,7 @@ export default function SuperAdminDashboard() {
 									}}
 									className="px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 font-semibold hover:bg-indigo-500/30 text-[11px]"
 								>
-									Unlock All (Proventus Standard)
+									Enable All (Full Suite)
 								</button>
 								<button
 									type="button"

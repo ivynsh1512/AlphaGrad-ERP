@@ -64,7 +64,7 @@ interface ReceiptItem {
 }
 
 export default function StudentFeesPage() {
-  const { user } = useAuth();
+  const { user, school } = useAuth();
   const [summary, setSummary] = useState<FeeSummary | null>(null);
   const [obligations, setObligations] = useState<FeeObligation[]>([]);
   const [receipts, setReceipts] = useState<ReceiptItem[]>([]);
@@ -126,7 +126,7 @@ export default function StudentFeesPage() {
           key: orderRes.razorpayKeyId,
           amount: orderRes.amountInPaise,
           currency: orderRes.currency,
-          name: "Proventus Academy",
+          name: school?.name || "School Institute",
           description: `Tuition Fee: ${orderRes.obligationTitle}`,
           order_id: orderRes.razorpayOrderId,
           prefill: {
@@ -472,7 +472,7 @@ export default function StudentFeesPage() {
               </span>
               <h3 className="text-xl font-bold text-slate-900">Thank You! Payment Successful</h3>
               <p className="text-xs text-slate-500">
-                Your tuition fee payment has been officially processed and confirmed by Proventus Academy.
+                Your tuition fee payment has been officially processed and confirmed by {school?.name || "your school"}.
               </p>
             </div>
 

@@ -78,4 +78,4 @@ export function generateSchoolPassword(prefix = "Alpha"): string {
 	return `${prefix}${randomSpecial}${randomDigits}`;
 }
 
-export const generateProventusPassword = generateSchoolPassword;
+

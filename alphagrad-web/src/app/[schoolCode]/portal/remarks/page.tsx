@@ -21,7 +21,7 @@ interface RemarkItem {
 }
 
 export default function StudentRemarksPage() {
-  const { user } = useAuth();
+  const { user, school } = useAuth();
   const [remarks, setRemarks] = useState<RemarkItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -105,7 +105,7 @@ export default function StudentRemarksPage() {
 
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                 <span className="font-semibold text-slate-700">Observed by: {r.facultyName}</span>
-                <span className="text-[11px] text-slate-400">Proventus Academy Faculty Desk</span>
+                <span className="text-[11px] text-slate-400">{school?.name || "School"} Faculty Desk</span>
               </div>
             </div>
           ))}

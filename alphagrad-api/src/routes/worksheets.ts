@@ -117,7 +117,7 @@ worksheetsRouter.post("/generate", requireAuth, async (c) => {
 	const selectedBoard = parsed.data.board || "CBSE";
 
 	// Prompt Generation for Groq
-	const prompt = `Generate a rigorous, curriculum-aligned academic practice worksheet for Proventus Academy.
+	const prompt = `Generate a rigorous, curriculum-aligned academic practice worksheet.
 Board / Curriculum: ${selectedBoard}
 Grade / Level: ${gradeName}
 Subject: ${subjectName}
@@ -158,7 +158,7 @@ Return ONLY a valid JSON object matching this exact schema:
 				{
 					role: "system",
 					content:
-						"You are the Proventus Academy Exam Assessment Engine. Create rigorous, error-free academic questions adhering to CBSE, ICSE, and NIOS board standards with precise mathematical notation ($...$ and $$...$$). Output pure JSON.",
+						"You are the Exam Assessment Engine. Create rigorous, error-free academic questions adhering to CBSE, ICSE, and NIOS board standards with precise mathematical notation ($...$ and $$...$$). Output pure JSON.",
 				},
 				{ role: "user", content: prompt },
 			],
@@ -460,7 +460,7 @@ Return pure JSON matching this exact structure:
 			messages: [
 				{
 					role: "system",
-					content: "You are the Proventus Academy Exam Engine. Output pure JSON for the single replacement question.",
+					content: "You are the Exam Engine. Output pure JSON for the single replacement question.",
 				},
 				{ role: "user", content: prompt },
 			],

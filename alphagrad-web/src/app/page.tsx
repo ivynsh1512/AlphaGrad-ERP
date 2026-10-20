@@ -98,7 +98,7 @@ export default function HomePage() {
 									setSchoolCode(e.target.value);
 									setError("");
 								}}
-								placeholder="e.g. proventus, zenith"
+								placeholder="e.g. your-school-code"
 								className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
 							/>
 						</div>
@@ -113,27 +113,15 @@ export default function HomePage() {
 
 					{error && <p className="mt-2 text-xs text-rose-600 text-left font-medium">{error}</p>}
 
-					{/* Quick Launch Suggestions */}
-					<div className="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
-						<span className="font-medium text-slate-400">Quick Test Institutes:</span>
-						<div className="flex items-center gap-2">
-							<button
-								type="button"
-								onClick={() => router.push("/proventus/login")}
-								className="px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold transition-colors flex items-center gap-1.5"
-							>
-								<span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
-								Proventus (All Features)
-							</button>
-							<button
-								type="button"
-								onClick={() => router.push("/zenith/login")}
-								className="px-2.5 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold transition-colors flex items-center gap-1.5"
-							>
-								<span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-								Zenith (Core Suite)
-							</button>
-						</div>
+					{/* Quick Hint */}
+					<div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+						<span className="font-medium text-slate-400">Need to add a school?</span>
+						<Link
+							href="/super-admin/login"
+							className="text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1"
+						>
+							Launch Super Admin Console &rarr;
+						</Link>
 					</div>
 				</div>
 
@@ -184,9 +172,6 @@ export default function HomePage() {
 					<div className="flex items-center gap-6">
 						<Link href="/super-admin/login" className="hover:text-indigo-600 font-medium">
 							Super Admin Console
-						</Link>
-						<Link href="/proventus/login" className="hover:text-indigo-600 font-medium">
-							Proventus Portal
 						</Link>
 					</div>
 				</div>

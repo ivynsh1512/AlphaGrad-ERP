@@ -9,7 +9,7 @@ Production-grade, highly scalable multi-tenant Enterprise Resource Planning (ERP
 AlphaGrad-ERP allows the platform owner to:
 1. **Host Multiple Independent Schools & Coaching Centers** on a single serverless infrastructure.
 2. **Super Admin Governance (`/super-admin`)**:
-   - Register new schools / institutes with a unique slug/code (e.g. `proventus`, `zenith`, `dps-delhi`).
+   - Register new schools / institutes with a unique slug/code (e.g. `dps-delhi`, `resonance`, `zenith`).
    - Assign initial institute administrator credentials (`Alpha1000` or custom).
    - **Modular Feature Matrix**: Selectively toggle which of the 20 ERP modules each school can access.
    - Real-time feature gating: When a module is turned off by Super Admin, it is immediately hidden from the school's navigation and protected by the Cloudflare Worker API.
@@ -19,9 +19,6 @@ AlphaGrad-ERP allows the platform owner to:
      - School Administrators → `/:schoolCode/admin`
      - Subject Teachers → `/:schoolCode/teacher`
      - Students & Parents → `/:schoolCode/portal` (Mobile-first PWA)
-4. **Proventus Academy Integration**:
-   - Registered as benchmark tenant (`proventus`) with 100% of capabilities enabled.
-   - The marketing website (`proventus-academy/proventus-web`) portal login connects seamlessly to `https://erp.novaxai.in/proventus/login`.
 
 ---
 
@@ -45,26 +42,20 @@ graph TD
 
 ---
 
-## 3. Seed Credentials & Access Matrix
+## 3. Seed Credentials & Platform Access
 
 ### Super Administrator
-- **Login URL:** `/super-admin/login` (or `https://erp.novaxai.in/super-admin/login`)
+- **Login URL:** `/super-admin/login` (or `https://alphagrad-web.vercel.app/super-admin/login`)
 - **Email:** `superadmin@alphagrad.in`
 - **Password:** `AlphaGrad@Super2026`
 - **Privilege:** Unlimited platform governance, school registration, feature toggles, credential resets.
 
-### School 1: Proventus Academy (`proventus`) — All 20 Modules Active
-- **School Login URL:** `/proventus/login` (or `https://erp.novaxai.in/proventus/login`)
-- **Administrator:** `Alpha1000` / `Proventus@2026`
-- **Teacher (Mathematics):** `Alpha1933` / `Proventus@2026`
-- **Teacher (Physics):** `Alpha1934` / `Proventus@2026`
-- **Student & Parent:** `Alpha1935` / `Proventus@2026`
-- **Enabled Modules:** All 20 capabilities (AI Tutor, CBT Tests, Worksheets, Fees, Syllabus, Accounting, etc.)
-
-### School 2: Zenith International (`zenith`) — Core Modules Only
-- **School Login URL:** `/zenith/login` (or `https://erp.novaxai.in/zenith/login`)
-- **Administrator:** `Zenith1000` / `Zenith@2026`
-- **Enabled Modules:** Core 6 modules (Academics, Students, Teachers, Attendance, Fees, Notices). AI Suite & Accounting disabled to test real-time feature gating.
+### Adding Your First School
+1. Log in to the Super Admin Console at `/super-admin/login`.
+2. Click **Add New School / Institute**.
+3. Provide School Name, City, Unique School Code (e.g. `resonance`, `zenith`), and Initial Admin credentials.
+4. Select the enabled feature suite (Academics, Attendance, Fees, CBT Tests, AI Tutor, etc.).
+5. The school can immediately access their custom portal at `/:schoolCode/login`!
 
 ---
 
@@ -112,5 +103,4 @@ npm run dev
 ```
 Starts locally at `http://localhost:3000`.
 - Super Admin: `http://localhost:3000/super-admin`
-- Proventus Portal: `http://localhost:3000/proventus/login`
-- Zenith Portal: `http://localhost:3000/zenith/login`
+- School Portals: `http://localhost:3000/:schoolCode/login`

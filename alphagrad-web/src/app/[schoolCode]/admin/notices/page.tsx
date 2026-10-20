@@ -76,7 +76,7 @@ export default function AdminNoticesPage() {
 		if (type === "holiday") {
 			setForm({
 				title: "Institute Holiday Notice",
-				content: "Dear Students & Parents, Please note that Proventus Academy will remain closed on [Date] on account of [Occasion]. Regular classes will resume on [Next Working Day].",
+				content: "Dear Students & Parents, Please note that the institute will remain closed on [Date] on account of [Occasion]. Regular classes will resume on [Next Working Day].",
 				targetAudience: "all",
 				isPinned: true,
 			});

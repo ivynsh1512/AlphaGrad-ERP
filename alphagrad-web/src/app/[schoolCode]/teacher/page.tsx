@@ -584,7 +584,7 @@ export default function TeacherDashboardPage() {
                       {batch.name}
                     </h3>
                     <p className={`text-[10px] truncate mt-0.5 ${isSelected ? "text-emerald-100" : "text-slate-500"}`}>
-                      {batch.className || "Proventus Batch"}
+                      {batch.className || "Academic Batch"}
                     </p>
                   </button>
                 );

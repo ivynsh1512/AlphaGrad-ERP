@@ -20,9 +20,9 @@ export const superAdmins = sqliteTable("super_admins", {
 ]);
 
 export const schools = sqliteTable("schools", {
-	id: text("id").primaryKey(), // e.g. 'sch_proventus'
-	code: text("code").notNull().unique(), // e.g. 'proventus' -> erp.novaxai.in/proventus/login
-	name: text("name").notNull(), // 'Proventus Academy'
+	id: text("id").primaryKey(), // e.g. 'sch_resonance'
+	code: text("code").notNull().unique(), // e.g. 'resonance' -> erp.novaxai.in/resonance/login
+	name: text("name").notNull(), // 'Resonance Academy'
 	brand: text("brand").notNull().default("AlphaGrad"),
 	tagline: text("tagline"),
 	address: text("address"),

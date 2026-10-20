@@ -48,7 +48,7 @@ export interface AiConfigData {
 
 const DEFAULT_CONFIG: AiConfigData = {
 	id: "ai-config-default",
-	instituteId: "proventus-academy",
+	instituteId: "default-school",
 	isTutorEnabled: true,
 	isWorksheetGenEnabled: true,
 	isTestGenEnabled: true,
@@ -79,7 +79,7 @@ const DEFAULT_CONFIG: AiConfigData = {
 		"C11": "Grade 11 Senior Secondary Bridge: Transition to advanced analytical reasoning, rigorous mathematical notation, and JEE/NEET foundational concepts.",
 		"C12": "Grade 12 Board & Competitive Mastery: Focus on high-yield exam patterns, competitive problem-solving shortcuts, error mitigation, and comprehensive solutions.",
 	},
-	systemPromptExtra: "Uphold the Proventus Academy Tri-Pillar ethos: Educate (first-principles conceptual clarity), Equilibrate (academic confidence and calm), Elevate (scholastic excellence).",
+	systemPromptExtra: "Uphold the AlphaGrad educational ethos: Educate (first-principles conceptual clarity), Equilibrate (academic confidence and calm), Elevate (scholastic excellence).",
 };
 
 /**
@@ -237,7 +237,7 @@ export async function checkStudentUsageLimits(
 }
 
 /**
- * Builds the authoritative grade-aware and board-calibrated system prompt for Proventus AI Tutor.
+ * Builds the authoritative grade-aware and board-calibrated system prompt for AlphaGrad AI Tutor.
  */
 export function buildTutorSystemPrompt(
 	profile: StudentAcademicContext,
@@ -318,8 +318,8 @@ export function buildTutorSystemPrompt(
   * Senior Secondary (11-12): Integration of NCERT theory with foundational JEE Main and NEET-UG application concepts.`;
 	}
 
-	return `You are "Proventus AI Tutor", the official intelligent personal tutor of Proventus Academy, Bangalore (operating under the AlphaGrad educational ecosystem).
-You embody the Proventus Tri-Pillar academic philosophy:
+	return `You are the official intelligent personal AI Tutor for ${profile.className} (${profile.classCode}) students under the AlphaGrad educational ERP ecosystem.
+You embody the AlphaGrad Tri-Pillar academic philosophy:
 1. EDUCATE: Build deep first-principles conceptual mastery. Avoid rote memorization.
 2. EQUILIBRATE: Provide calm, encouraging, and confidence-building guidance. Eliminate academic stress.
 3. ELEVATE: Guide the learner toward distinction in board examinations and competitive excellence.

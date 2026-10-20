@@ -68,12 +68,12 @@ export default function AdminSettingsPage() {
   // Fee Policies
   const [feeReminderDays, setFeeReminderDays] = useState(7);
   const [strictDueDatePolicy, setStrictDueDatePolicy] = useState(true);
-  const [receiptPrefix, setReceiptPrefix] = useState("INV-PA-2026-");
+  const [receiptPrefix, setReceiptPrefix] = useState("INV-2026-");
   const [gracePeriodDays, setGracePeriodDays] = useState(5);
 
   // Admissions & Portals
   const [usernamePrefix, setUsernamePrefix] = useState("Alpha");
-  const [defaultPassword, setDefaultPassword] = useState("Proventus@3393");
+  const [defaultPassword, setDefaultPassword] = useState("School@2026");
   const [allowComplaints, setAllowComplaints] = useState(true);
 
   // Export & Diagnostic state
@@ -169,7 +169,7 @@ export default function AdminSettingsPage() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `Proventus_Student_Directory_${new Date().toISOString().split("T")[0]}.csv`);
+      link.setAttribute("download", `Student_Directory_${new Date().toISOString().split("T")[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -226,7 +226,7 @@ export default function AdminSettingsPage() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", `Proventus_Fee_Ledger_${new Date().toISOString().split("T")[0]}.csv`);
+      link.setAttribute("download", `Fee_Ledger_${new Date().toISOString().split("T")[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -278,7 +278,7 @@ export default function AdminSettingsPage() {
           Institute Settings & Preferences
         </h1>
         <p className="text-xs text-slate-500 mt-1">
-          Manage Proventus Academy academic parameters, strict fee payment rules, admission defaults, and operational data tools.
+          Manage school academic parameters, strict fee payment rules, admission defaults, and operational data tools.
         </p>
       </div>
 
@@ -498,7 +498,7 @@ export default function AdminSettingsPage() {
                 type="text"
                 value={defaultPassword}
                 onChange={(e) => setDefaultPassword(e.target.value)}
-                placeholder="Proventus@3393"
+                placeholder="School@2026"
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
               <p className="text-[10px] text-slate-400 mt-1">
@@ -557,7 +557,7 @@ export default function AdminSettingsPage() {
               <input
                 type="text"
                 disabled
-                value={data?.institute.code || "PROVENTUS"}
+                value={data?.institute.code || "SCHOOL"}
                 className="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed font-mono font-bold"
               />
             </div>
@@ -573,7 +573,7 @@ export default function AdminSettingsPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                  placeholder="contact@proventusacademy.com"
+                  placeholder="contact@school.com"
                 />
               </div>
             </div>

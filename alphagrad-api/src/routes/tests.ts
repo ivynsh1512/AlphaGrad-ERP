@@ -173,7 +173,7 @@ testsRouter.post("/generate", requireTeacher, async (c) => {
 	}
 
 	const selectedBoard = parsed.data.board || "CBSE";
-	const prompt = `Generate a standardized, examination-grade test paper for Proventus Academy.
+	const prompt = `Generate a standardized, examination-grade test paper.
 Board / Curriculum: ${selectedBoard}
 Grade: ${gradeName}
 Subject: ${subjectName}
@@ -209,7 +209,7 @@ Return ONLY a valid JSON object matching this schema:
 				{
 					role: "system",
 					content:
-						"You are the Proventus Academy Exam Board. Produce rigorous, accurate, high-quality assessment questions with exact answer keys and worked solutions. Return pure JSON only.",
+						"You are the Exam Board. Produce rigorous, accurate, high-quality assessment questions with exact answer keys and worked solutions. Return pure JSON only.",
 				},
 				{ role: "user", content: prompt },
 			],

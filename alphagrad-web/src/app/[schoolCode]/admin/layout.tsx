@@ -150,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 						</div>
 						<div className="overflow-hidden">
 							<div className="font-bold text-sm text-white truncate leading-tight">
-								{school?.name || "Proventus Academy"}
+								{school?.name || "School Institute"}
 							</div>
 							<div className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
 								<span className="font-mono text-indigo-400 font-semibold">{schoolCode}</span>

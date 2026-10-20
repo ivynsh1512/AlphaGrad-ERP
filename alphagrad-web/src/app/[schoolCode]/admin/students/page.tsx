@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import {
 	Users,
@@ -38,6 +39,8 @@ import { ParentInvoiceModal } from "@/components/portal/ParentInvoiceModal";
 import BouncingLoader from "@/components/BouncingLoader";
 
 export default function AdminStudentsPage() {
+	const { school } = useAuth();
+	const schoolCode = school?.code || "";
 	const [students, setStudents] = useState<any[]>([]);
 	const [batches, setBatches] = useState<any[]>([]);
 	const [subjects, setSubjects] = useState<any[]>([]); // Global subjects list for dropdown fallback
@@ -348,7 +351,7 @@ export default function AdminStudentsPage() {
 			};
 
 			const res = await api.students.create(payload);
-			const generatedPwd = res.credentials?.password || res.credentials?.defaultPassword || "Proventus@3393";
+			const generatedPwd = res.credentials?.password || res.credentials?.defaultPassword || "School@2026";
 
 			setIsCreateOpen(false);
 			setFormData({
@@ -387,7 +390,7 @@ export default function AdminStudentsPage() {
 		setCreatedCredentials({
 			fullName: student.fullName,
 			username: student.username,
-			defaultPassword: student.password || "Proventus@3393",
+			defaultPassword: student.password || "School@2026",
 			userId: student.userId,
 			title: "Student Login Credentials",
 		});
@@ -974,7 +977,7 @@ export default function AdminStudentsPage() {
 											</span>
 											<div className="flex items-center gap-1.5 mt-1 text-[11px]">
 												<span className="font-mono text-slate-700">
-													{revealedPasswords[student.id] ? (student.password || "Proventus@3393") : "••••••••"}
+													{revealedPasswords[student.id] ? (student.password || "School@2026") : "••••••••"}
 												</span>
 												<button
 													type="button"
@@ -987,7 +990,7 @@ export default function AdminStudentsPage() {
 												<button
 													type="button"
 													onClick={() => {
-														navigator.clipboard.writeText(student.password || "Proventus@3393");
+														navigator.clipboard.writeText(student.password || "School@2026");
 														setSuccessMsg(`Copied password for ${student.fullName}`);
 														setTimeout(() => setSuccessMsg(null), 2500);
 													}}
@@ -1983,7 +1986,7 @@ export default function AdminStudentsPage() {
 							<div className="p-3 bg-indigo-50/70 rounded-xl border border-indigo-100 text-[11px] text-indigo-900">
 								<span className="font-semibold">Auto-Generated Password:</span> A secure unique password (e.g.{" "}
 								<code className="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-indigo-700">
-									Proventus@3393
+									School@2026
 								</code>
 								) will be automatically created and displayed upon enrollment.
 							</div>
@@ -2344,7 +2347,8 @@ export default function AdminStudentsPage() {
 						<div className="pt-2 flex flex-col gap-2">
 							<button
 								onClick={() => {
-									const text = `Proventus Academy Student Login:\nName: ${createdCredentials.fullName}\nUsername: ${createdCredentials.username}\nPassword: ${createdCredentials.defaultPassword}\nPortal: https://proventusacademy.com/login`;
+									const portalUrl = typeof window !== "undefined" ? `${window.location.origin}/${schoolCode}/login` : "";
+									const text = `${school?.name || "School"} Student Login:\nName: ${createdCredentials.fullName}\nUsername: ${createdCredentials.username}\nPassword: ${createdCredentials.defaultPassword}\nPortal: ${portalUrl}`;
 									navigator.clipboard.writeText(text);
 									setCopied(true);
 									setTimeout(() => setCopied(false), 2000);

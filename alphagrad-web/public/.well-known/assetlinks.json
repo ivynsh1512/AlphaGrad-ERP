@@ -3,7 +3,7 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "in.proventusacademy.erp",
+      "package_name": "in.alphagrad.erp",
       "sha256_cert_fingerprints": [
         "88:2D:CB:81:D7:ED:E9:EB:FB:A1:B9:2A:5A:4F:AB:A7:4A:E0:F3:B2:16:48:7F:6F:E5:F9:D6:6E:62:E7:58:32",
         "63:A4:D9:CD:18:AF:F7:BA:3A:2A:93:B1:D9:C7:58:56:E7:14:7D:FF:2C:EE:EE:30:97:3B:8E:DA:BA:A5:3C:36"

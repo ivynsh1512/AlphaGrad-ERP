@@ -75,13 +75,13 @@ export default function AdminCampaignsPage() {
 			id: "",
 			title: "",
 			campaignType: "admission",
-			headline: "Admissions Open — Build Your Academic Future with Proventus Academy",
-			subheadline: "Premier NIOS Open Schooling & CBSE/ICSE Foundation Coaching in Bangalore",
+			headline: "Admissions Open — Build Your Academic Future",
+			subheadline: "Premier Coaching & Schooling Curriculum",
 			description:
-				"Empowering students across Grades 1–12 with personalized 15-student cohorts, 24/7 AI Doubt Solving, and structured exam test series.",
+				"Empowering students across all grades with personalized cohorts, 24/7 AI Doubt Solving, and structured exam test series.",
 			ctaText: "Apply for Admission",
 			ctaUrl: "/contact",
-			secondaryCtaText: "Meet Proventus AI Tutor",
+			secondaryCtaText: "Meet AI Tutor",
 			secondaryCtaUrl: "/portal/ai-tutor",
 			badgeText: "Admissions Open 2026–2027",
 			startDate: new Date().toISOString().split("T")[0],
@@ -89,9 +89,9 @@ export default function AdminCampaignsPage() {
 			priority: 20,
 			isActive: true,
 			isDefault: false,
-			seoTitle: "Admissions Open 2026-27 | Proventus Academy Bangalore",
-			seoDescription: "Enroll today for NIOS Open Schooling and CBSE/ICSE foundation coaching in Kothanur.",
-			seoKeywords: "Admissions 2026, Proventus Academy, NIOS Bangalore",
+			seoTitle: "Admissions Open 2026-27 | Academic Enrollment",
+			seoDescription: "Enroll today for premier schooling and foundation coaching.",
+			seoKeywords: "Admissions 2026, School Enrollment, Foundation Coaching",
 		});
 		setIsEditing(true);
 	};
@@ -373,7 +373,7 @@ export default function AdminCampaignsPage() {
 										type="text"
 										value={formData.seoTitle}
 										onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
-										placeholder="SEO Title Tag (e.g. Admissions Open 2026-27 | Proventus Academy)"
+										placeholder="SEO Title Tag (e.g. Admissions Open 2026-27 | Academy)"
 										className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800"
 									/>
 								</div>
