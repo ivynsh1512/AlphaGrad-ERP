@@ -1,0 +1,28 @@
+{
+  "name": "alphagrad-erp-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "cf-typegen": "wrangler types",
+    "drizzle:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply alphagrad-erp-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply alphagrad-erp-db --remote",
+    "db:seed:local": "wrangler d1 execute alphagrad-erp-db --local --file=src/db/seed.sql",
+    "db:seed:remote": "wrangler d1 execute alphagrad-erp-db --remote --file=src/db/seed.sql"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.0.0",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^5.5.2",
+    "vitest": "~4.1.0",
+    "wrangler": "^4.151.2"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.4",
+    "hono": "^4.13.13",
+    "zod": "^4.6.5"
+  }
+}

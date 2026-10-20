@@ -1,0 +1,24 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "alphagrad-erp-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-06",
+	"compatibility_flags": [
+		"global_fetch_strictly_public"
+	],
+	"assets": {
+		"directory": "./public"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"upload_source_maps": true,
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "alphagrad-erp-db",
+			"database_id": "3b19d090-bc2c-4566-a3be-0b1d1441c095",
+			"migrations_dir": "drizzle"
+		}
+	]
+}
