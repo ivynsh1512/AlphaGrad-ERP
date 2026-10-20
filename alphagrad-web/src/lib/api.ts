@@ -75,12 +75,18 @@ export const api = {
 					body: JSON.stringify({ newPassword }),
 				}
 			),
+		deleteSchool: (schoolId: string) =>
+			request<{ message: string }>("/api/v1/super-admin/schools/" + schoolId, {
+				method: "DELETE",
+			}),
 	},
 
-	// 0.1 Public School Config Discovery
+	// 0.1 Public School Config Discovery & Directory Search
 	school: {
 		getPublic: (schoolCode: string) =>
 			request<{ school: any; features: any }>("/api/v1/schools/" + schoolCode + "/public"),
+		search: (q: string) =>
+			request<{ schools: any[] }>("/api/v1/schools/search?q=" + encodeURIComponent(q)),
 	},
 	// Generic REST Helpers
 	get: <T = any>(endpoint: string) => request<T>(endpoint),

@@ -21,13 +21,29 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* Subtle dot grid pattern */
 .bg-dot-grid {
-  background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Premium card hover lift */
+.card-lift {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px -12px rgba(79, 70, 229, 0.12);
+}
+
+/* Smooth links */
+a {
+  transition: color 0.15s ease, opacity 0.15s ease;
 }

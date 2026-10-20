@@ -35,29 +35,63 @@ superAdminRouter.post("/auth/login", async (c) => {
 	}
 
 	const { email, password } = parsed.data;
+	const cleanEmail = email.toLowerCase().trim();
 	const db = createDb(c.env.DB);
 
+	// Cloudflare Secrets: Primary authoritative check
+	const envEmail = (c.env.SUPER_ADMIN_EMAIL || "superadmin@alphagrad.in").toLowerCase().trim();
+	const envSecretPassword = c.env.SUPER_ADMIN_PASSWORD;
+
+	let authenticated = false;
+
+	// 1. Authoritative check via Cloudflare Secret
+	if (envSecretPassword && cleanEmail === envEmail && password === envSecretPassword) {
+		authenticated = true;
+	}
+
+	// 2. Fallback check via Database Hash (if provisioned)
 	const adminRecords = await db
 		.select()
 		.from(superAdmins)
-		.where(eq(superAdmins.email, email.toLowerCase().trim()))
+		.where(eq(superAdmins.email, cleanEmail))
 		.limit(1);
 
-	const admin = adminRecords[0];
-	if (!admin || admin.status !== "active") {
+	let admin = adminRecords[0];
+
+	if (!authenticated && admin && admin.status === "active" && admin.passwordHash) {
+		const isMatch = await verifyPassword(password, admin.passwordHash);
+		if (isMatch) {
+			authenticated = true;
+		}
+	}
+
+	if (!authenticated) {
 		return c.json({ error: "Invalid email or password" }, 401);
 	}
 
-	const isMatch = await verifyPassword(password, admin.passwordHash);
-	if (!isMatch) {
-		return c.json({ error: "Invalid email or password" }, 401);
+	// Ensure DB record exists for the Super Admin
+	const now = Math.floor(Date.now() / 1000);
+	if (!admin) {
+		const newHash = await hashPassword(password);
+		admin = {
+			id: `sa_${crypto.randomUUID().slice(0, 8)}`,
+			email: cleanEmail,
+			passwordHash: newHash,
+			fullName: "AlphaGrad Chief Super Admin",
+			role: "super_admin",
+			status: "active",
+			lastLoginAt: now,
+			createdAt: now,
+			updatedAt: now,
+		};
+		await db.insert(superAdmins).values(admin);
+	} else {
+		const updates: Record<string, any> = { lastLoginAt: now };
+		if (envSecretPassword && password === envSecretPassword) {
+			updates.passwordHash = await hashPassword(password);
+		}
+		await db.update(superAdmins).set(updates).where(eq(superAdmins.id, admin.id));
 	}
-
-	// Update last login
-	await db
-		.update(superAdmins)
-		.set({ lastLoginAt: Math.floor(Date.now() / 1000) })
-		.where(eq(superAdmins.id, admin.id));
 
 	const secret = c.env.JWT_SECRET || "alphagrad-erp-secure-jwt-key-2026-super-token";
 	const token = await signJwt(
@@ -400,4 +434,13 @@ superAdminRouter.post("/schools/:id/reset-admin", requireSuperAdmin, async (c) =
 		username: adminUsers[0].username,
 		password: newPassword,
 	});
+});
+
+// 9. Delete School & All Associated Data
+superAdminRouter.delete("/schools/:id", requireSuperAdmin, async (c) => {
+	const schoolId = c.req.param("id");
+	const db = createDb(c.env.DB);
+
+	await db.delete(schools).where(eq(schools.id, schoolId));
+	return c.json({ message: "School and all associated records deleted successfully" });
 });

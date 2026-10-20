@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { ShieldCheck, LogOut, Building2, LayoutDashboard, Globe, ExternalLink } from "lucide-react";
+import { ShieldCheck, LogOut, Globe, ExternalLink, Sparkles } from "lucide-react";
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
 	const { superAdmin, superLogout, loading } = useAuth();
@@ -23,31 +23,34 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 
 	if (loading || !superAdmin) {
 		return (
-			<div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-300">
+			<div className="min-h-screen bg-white flex items-center justify-center text-slate-600">
 				<div className="flex items-center gap-3">
-					<div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-					<span className="text-sm font-medium">Validating Super Admin Authorization...</span>
+					<div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+					<span className="text-sm font-semibold">Authorizing Super Administrator...</span>
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-			{/* Top Bar */}
-			<header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+		<div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-indigo-500 selection:text-white">
+			{/* Top Bar — Crisp White Header */}
+			<header className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
 					<div className="flex items-center gap-3">
-						<div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-sky-400 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+						<div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/20">
 							<ShieldCheck className="w-5 h-5" />
 						</div>
 						<div>
 							<div className="flex items-center gap-2">
-								<span className="font-bold text-base text-white tracking-tight">AlphaGrad</span>
-								<span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-									Super Admin Master
+								<span className="font-bold text-base text-slate-900 tracking-tight">AlphaGrad</span>
+								<span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+									Super Admin Console
 								</span>
 							</div>
+							<p className="text-[11px] text-slate-500 font-medium hidden sm:block">
+								Multi-Tenant Platform Governance & Module Matrix
+							</p>
 						</div>
 					</div>
 
@@ -55,24 +58,24 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 						<Link
 							href="/"
 							target="_blank"
-							className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+							className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200 font-medium"
 						>
-							<Globe className="w-3.5 h-3.5" />
+							<Globe className="w-3.5 h-3.5 text-slate-400" />
 							<span>Platform Root</span>
 							<ExternalLink className="w-3 h-3 opacity-60" />
 						</Link>
 
-						<div className="h-5 w-px bg-slate-800 hidden sm:block"></div>
+						<div className="h-5 w-px bg-slate-200 hidden sm:block"></div>
 
 						<div className="flex items-center gap-3">
 							<div className="text-right hidden sm:block">
-								<div className="text-xs font-semibold text-slate-200">{superAdmin.fullName}</div>
-								<div className="text-[10px] text-slate-400">{superAdmin.email}</div>
+								<div className="text-xs font-bold text-slate-900">{superAdmin.fullName}</div>
+								<div className="text-[11px] text-slate-500">{superAdmin.email}</div>
 							</div>
 
 							<button
 								onClick={superLogout}
-								className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/10 hover:text-rose-400 text-slate-300 text-xs font-medium border border-slate-700 hover:border-rose-500/30 transition-all"
+								className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 text-xs font-semibold border border-slate-200 hover:border-rose-200 transition-all"
 								title="Sign out of Super Admin"
 							>
 								<LogOut className="w-3.5 h-3.5" />

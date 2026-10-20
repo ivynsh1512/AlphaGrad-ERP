@@ -6,6 +6,38 @@ import { schools, schoolFeatures } from "../db/schema";
 
 export const schoolsRouter = new Hono<{ Bindings: Bindings }>();
 
+// Public school directory search endpoint (for homepage portal finder)
+schoolsRouter.get("/search", async (c) => {
+	const q = (c.req.query("q") || "").toLowerCase().trim();
+	const db = createDb(c.env.DB);
+
+	const all = await db
+		.select({
+			id: schools.id,
+			code: schools.code,
+			name: schools.name,
+			brand: schools.brand,
+			city: schools.city,
+			state: schools.state,
+			logoUrl: schools.logoUrl,
+			themePrimary: schools.themePrimary,
+		})
+		.from(schools)
+		.where(eq(schools.status, "active"))
+		.limit(20);
+
+	const filtered = q
+		? all.filter(
+				(s) =>
+					s.name.toLowerCase().includes(q) ||
+					s.code.toLowerCase().includes(q) ||
+					(s.city && s.city.toLowerCase().includes(q))
+		  )
+		: all;
+
+	return c.json({ schools: filtered });
+});
+
 // Public school config endpoint (for login page branding & feature discovery)
 schoolsRouter.get("/:code/public", async (c) => {
 	const code = c.req.param("code").toLowerCase().trim();

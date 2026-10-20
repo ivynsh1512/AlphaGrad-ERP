@@ -37,6 +37,8 @@ import { resolveTenant, requireFeature, requireAuth } from "./middleware/auth";
 export type Bindings = {
 	DB: D1Database;
 	JWT_SECRET?: string;
+	SUPER_ADMIN_EMAIL?: string;
+	SUPER_ADMIN_PASSWORD?: string;
 	RAZORPAY_KEY_ID?: string;
 	RAZORPAY_KEY_SECRET?: string;
 	RAZORPAY_WEBHOOK_SECRET?: string;

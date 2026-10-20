@@ -21,9 +21,25 @@ import {
 	ShieldAlert,
 	RefreshCw,
 	Settings2,
+	Trash2,
+	Ban,
+	CheckCircle,
+	AlertCircle,
+	X,
+	MapPin,
+	Mail,
+	Phone,
+	UserCheck,
 } from "lucide-react";
 
-const MODULE_DEFINITIONS = [
+export interface ModuleDefinition {
+	key: string;
+	label: string;
+	category: string;
+	desc: string;
+}
+
+const MODULE_DEFINITIONS: ModuleDefinition[] = [
 	{ key: "academic", label: "Academics & Batches", category: "Core", desc: "Classes, Batches, Subjects & Sessions" },
 	{ key: "students", label: "Students Directory", category: "Core", desc: "Admissions, Enrollments & ID Cards" },
 	{ key: "teachers", label: "Faculty Directory", category: "Core", desc: "Staff profiles & Subject assignments" },
@@ -36,7 +52,7 @@ const MODULE_DEFINITIONS = [
 	{ key: "tasks", label: "Task Delegation", category: "Management", desc: "Staff & Student to-do workflows" },
 	{ key: "notices", label: "Circulars & Notices", category: "Communication", desc: "Digital bulletin board & alerts" },
 	{ key: "complaints", label: "Helpdesk Grievance", category: "Communication", desc: "Support tickets & parent inquiries" },
-	{ key: "fees", label: "Fees & Razorpay", category: "Finance", desc: "Fee structures, obligations & online checkout" },
+	{ key: "fees", label: "Fees & Invoices", category: "Finance", desc: "Fee structures, obligations & online checkout" },
 	{ key: "calendar", label: "Academic Calendar", category: "Management", desc: "Holidays, exam schedules & events" },
 	{ key: "accounting", label: "Operating Ledger", category: "Finance", desc: "Expenditures & Staff Salary Disbursements" },
 	{ key: "campaigns", label: "Admissions Campaigns", category: "Growth", desc: "Dynamic banners & lead generation" },
@@ -59,6 +75,7 @@ export default function SuperAdminDashboard() {
 	const [selectedSchool, setSelectedSchool] = useState<any | null>(null);
 	const [featureEditMap, setFeatureEditMap] = useState<Record<string, number>>({});
 	const [actionMessage, setActionMessage] = useState<string | null>(null);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	// New School Form State
 	const [newSchool, setNewSchool] = useState({
@@ -84,14 +101,15 @@ export default function SuperAdminDashboard() {
 	const loadData = async () => {
 		try {
 			setLoading(true);
+			setErrorMessage(null);
 			const [statsRes, schoolsRes] = await Promise.all([
 				api.superAdmin.getStats(),
 				api.superAdmin.getSchools(),
 			]);
 			setStats(statsRes);
 			setSchools(schoolsRes.schools || []);
-		} catch (err) {
-			console.error("Failed to load super admin data", err);
+		} catch (err: any) {
+			setErrorMessage(err?.message || "Failed to load super admin data from server");
 		} finally {
 			setLoading(false);
 		}
@@ -102,7 +120,8 @@ export default function SuperAdminDashboard() {
 	}, []);
 
 	const handleCopyUrl = (code: string) => {
-		const url = `https://erp.novaxai.in/${code}/login`;
+		const origin = typeof window !== "undefined" ? window.location.origin : "https://erp.novaxai.in";
+		const url = `${origin}/${code}/login`;
 		navigator.clipboard.writeText(url);
 		setCopiedCode(code);
 		setTimeout(() => setCopiedCode(null), 2500);
@@ -120,7 +139,7 @@ export default function SuperAdminDashboard() {
 		setIsFeatureModalOpen(true);
 	};
 
-	// Save Updated Features
+	// Save Feature Matrix
 	const handleSaveFeatures = async () => {
 		if (!selectedSchool) return;
 		try {
@@ -143,9 +162,8 @@ export default function SuperAdminDashboard() {
 				code: newSchool.code.toLowerCase().trim(),
 				features: newSchoolFeatures,
 			});
+			setActionMessage(`School "${newSchool.name}" (Code: ${newSchool.code}) created successfully!`);
 			setIsAddModalOpen(false);
-			setActionMessage(`Institute "${newSchool.name}" registered with code "${newSchool.code.toLowerCase()}"!`);
-			// Reset form
 			setNewSchool({
 				name: "",
 				code: "",
@@ -169,472 +187,628 @@ export default function SuperAdminDashboard() {
 	};
 
 	// Reset Admin Password
-	const handleResetAdminPassword = async (school: any) => {
-		const newPass = prompt(`Enter new password for ${school.name} Admin:`, `Alpha@${Math.floor(1000 + Math.random() * 9000)}`);
+	const handleResetPassword = async (school: any) => {
+		const newPass = prompt(`Enter new password for ${school.name} administrator (${school.adminUser?.username || "Admin"}):`, "Alpha@2026");
 		if (!newPass) return;
-
 		try {
 			const res = await api.superAdmin.resetAdminPassword(school.id, newPass);
-			alert(`Admin password for ${res.username} reset to:\n${res.password}`);
+			alert(`Password for ${res.username} reset to: ${res.password}`);
 			await loadData();
 		} catch (err: any) {
 			alert(err?.message || "Failed to reset password");
 		}
 	};
 
-	const filteredSchools = schools.filter(
-		(s) =>
-			s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			s.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			(s.city && s.city.toLowerCase().includes(searchQuery.toLowerCase()))
-	);
+	// Toggle School Status
+	const handleToggleStatus = async (school: any) => {
+		const nextStatus = school.status === "active" ? "suspended" : "active";
+		const confirmed = confirm(`Are you sure you want to mark "${school.name}" as ${nextStatus.toUpperCase()}?`);
+		if (!confirmed) return;
+		try {
+			await api.superAdmin.updateSchool(school.id, { status: nextStatus });
+			setActionMessage(`School "${school.name}" status changed to ${nextStatus}.`);
+			await loadData();
+			setTimeout(() => setActionMessage(null), 4000);
+		} catch (err: any) {
+			alert(err?.message || "Failed to update school status");
+		}
+	};
+
+	// Delete School
+	const handleDeleteSchool = async (school: any) => {
+		const promptText = prompt(`⚠️ CAUTION: Deleting "${school.name}" will permanently erase all its students, teachers, classes, and records.\n\nType the school code "${school.code}" to confirm deletion:`);
+		if (promptText !== school.code) {
+			if (promptText !== null) alert("Code does not match. Deletion cancelled.");
+			return;
+		}
+		try {
+			await api.superAdmin.deleteSchool(school.id);
+			setActionMessage(`School "${school.name}" has been permanently deleted.`);
+			await loadData();
+			setTimeout(() => setActionMessage(null), 4000);
+		} catch (err: any) {
+			alert(err?.message || "Failed to delete school");
+		}
+	};
+
+	const filteredSchools = schools.filter((s) => {
+		const q = searchQuery.toLowerCase().trim();
+		if (!q) return true;
+		return (
+			s.name?.toLowerCase().includes(q) ||
+			s.code?.toLowerCase().includes(q) ||
+			s.city?.toLowerCase().includes(q) ||
+			s.brand?.toLowerCase().includes(q)
+		);
+	});
 
 	return (
 		<div className="space-y-8">
-			{/* Top Action Notification */}
+			{/* Banner Notifications */}
 			{actionMessage && (
-				<div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center justify-between animate-in fade-in duration-200">
+				<div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center justify-between shadow-xs">
 					<div className="flex items-center gap-2">
-						<CheckCircle2 className="w-5 h-5 shrink-0" />
+						<CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
 						<span>{actionMessage}</span>
 					</div>
-					<button onClick={() => setActionMessage(null)} className="text-emerald-400 hover:text-emerald-200">
-						✕
+					<button onClick={() => setActionMessage(null)} className="text-emerald-700 hover:text-emerald-900">
+						<X className="w-4 h-4" />
 					</button>
 				</div>
 			)}
 
-			{/* Stats Grid */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-				<div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-					<div className="flex items-center justify-between">
-						<span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Institutes</span>
-						<div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
-							<Building2 className="w-5 h-5" />
-						</div>
+			{errorMessage && (
+				<div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold flex items-center justify-between shadow-xs">
+					<div className="flex items-center gap-2">
+						<AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+						<span>{errorMessage}</span>
 					</div>
-					<div className="mt-4 text-3xl font-extrabold text-white">{stats?.totalSchools ?? 0}</div>
-					<div className="mt-1 text-xs text-slate-500">{stats?.activeSchools ?? 0} Active Subscriptions</div>
+					<button onClick={() => setErrorMessage(null)} className="text-rose-700 hover:text-rose-900">
+						<X className="w-4 h-4" />
+					</button>
+				</div>
+			)}
+
+			{/* Top Header & Quick Action Buttons */}
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+				<div>
+					<h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+						Schools & Institutes Directory
+					</h1>
+					<p className="mt-1 text-sm text-slate-500">
+						Provision new tenants, assign custom school codes, and dynamically control the 20-module ERP feature matrix.
+					</p>
 				</div>
 
-				<div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-					<div className="flex items-center justify-between">
-						<span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Platform Students</span>
-						<div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-							<Users className="w-5 h-5" />
-						</div>
-					</div>
-					<div className="mt-4 text-3xl font-extrabold text-white">{stats?.totalStudents ?? 0}</div>
-					<div className="mt-1 text-xs text-slate-500">Enrolled across all schools</div>
-				</div>
+				<div className="flex items-center gap-3">
+					<button
+						onClick={loadData}
+						disabled={loading}
+						className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition shadow-xs disabled:opacity-50"
+					>
+						<RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-indigo-600" : "text-slate-500"}`} />
+						<span>Refresh</span>
+					</button>
 
-				<div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-					<div className="flex items-center justify-between">
-						<span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Platform Faculty</span>
-						<div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-							<GraduationCap className="w-5 h-5" />
-						</div>
-					</div>
-					<div className="mt-4 text-3xl font-extrabold text-white">{stats?.totalTeachers ?? 0}</div>
-					<div className="mt-1 text-xs text-slate-500">Teachers actively assigned</div>
-				</div>
-
-				<div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-					<div className="flex items-center justify-between">
-						<span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">ERP Capabilities</span>
-						<div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
-							<Layers className="w-5 h-5" />
-						</div>
-					</div>
-					<div className="mt-4 text-3xl font-extrabold text-white">20 Modules</div>
-					<div className="mt-1 text-xs text-slate-500">Independently toggleable per school</div>
+					<button
+						onClick={() => setIsAddModalOpen(true)}
+						className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-md shadow-indigo-600/20 active:scale-95"
+					>
+						<Plus className="w-4 h-4" />
+						<span>Register New School</span>
+					</button>
 				</div>
 			</div>
 
-			{/* Controls & Schools List */}
-			<div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
-				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+			{/* Metric KPI Cards */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				<div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
 					<div>
-						<h2 className="text-xl font-bold text-white tracking-tight">Registered Institutes & Schools</h2>
-						<p className="text-xs text-slate-400 mt-1">
-							Assign unique school codes, configure feature access, and manage institute administrators.
-						</p>
+						<p className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Registered</p>
+						<h3 className="text-2xl font-black text-slate-900 mt-1">{stats?.totalSchools ?? schools.length}</h3>
+						<p className="text-[11px] text-slate-400 mt-0.5">Autonomous School Tenants</p>
 					</div>
-
-					<div className="flex items-center gap-3 w-full sm:w-auto">
-						<div className="relative flex-1 sm:w-64">
-							<Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-							<input
-								type="text"
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-								placeholder="Search school or code..."
-								className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-							/>
-						</div>
-
-						<button
-							onClick={() => setIsAddModalOpen(true)}
-							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/20 shrink-0"
-						>
-							<Plus className="w-4 h-4" />
-							<span>Register School</span>
-						</button>
+					<div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+						<Building2 className="w-6 h-6" />
 					</div>
 				</div>
 
-				{/* School Cards / Table */}
+				<div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
+					<div>
+						<p className="text-xs font-bold uppercase tracking-wider text-slate-500">Active Campuses</p>
+						<h3 className="text-2xl font-black text-emerald-600 mt-1">
+							{stats?.activeSchools ?? schools.filter((s) => s.status === "active").length}
+						</h3>
+						<p className="text-[11px] text-slate-400 mt-0.5">Live Portals Accessible</p>
+					</div>
+					<div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+						<CheckCircle2 className="w-6 h-6" />
+					</div>
+				</div>
+
+				<div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
+					<div>
+						<p className="text-xs font-bold uppercase tracking-wider text-slate-500">Student Directory</p>
+						<h3 className="text-2xl font-black text-slate-900 mt-1">{stats?.totalStudents ?? 0}</h3>
+						<p className="text-[11px] text-slate-400 mt-0.5">Enrolled Across All Tenants</p>
+					</div>
+					<div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+						<GraduationCap className="w-6 h-6" />
+					</div>
+				</div>
+
+				<div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
+					<div>
+						<p className="text-xs font-bold uppercase tracking-wider text-slate-500">Faculty Network</p>
+						<h3 className="text-2xl font-black text-slate-900 mt-1">{stats?.totalTeachers ?? 0}</h3>
+						<p className="text-[11px] text-slate-400 mt-0.5">Active Subject Teachers</p>
+					</div>
+					<div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+						<Users className="w-6 h-6" />
+					</div>
+				</div>
+			</div>
+
+			{/* Search & Filter Bar */}
+			<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+				<div className="relative w-full sm:max-w-md">
+					<div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+						<Search className="w-4 h-4" />
+					</div>
+					<input
+						type="text"
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						placeholder="Search by school name, code, city, brand..."
+						className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-xs"
+					/>
+				</div>
+
+				<div className="text-xs font-semibold text-slate-500">
+					Showing <span className="text-slate-900">{filteredSchools.length}</span> of {schools.length} institutes
+				</div>
+			</div>
+
+			{/* School Tenants Table */}
+			<div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
 				{loading ? (
-					<div className="py-16 text-center text-slate-400 text-sm flex items-center justify-center gap-2">
-						<RefreshCw className="w-4 h-4 animate-spin text-indigo-400" />
-						Loading institutes from Cloudflare D1...
+					<div className="py-20 text-center text-slate-500 flex flex-col items-center justify-center gap-3">
+						<div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+						<p className="text-xs font-semibold">Querying Cloudflare D1 Database...</p>
 					</div>
 				) : filteredSchools.length === 0 ? (
-					<div className="py-16 text-center text-slate-500 text-sm">
-						No institutes found. Click "Register School" to create your first school!
+					<div className="py-20 px-6 text-center text-slate-500">
+						<div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
+							<Building2 className="w-7 h-7" />
+						</div>
+						<h3 className="text-base font-bold text-slate-900">No Schools Found</h3>
+						<p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+							{searchQuery
+								? `No schools matched your search "${searchQuery}". Clear query to view all.`
+								: "No school tenants are currently registered. Click 'Register New School' above to add your first tenant."}
+						</p>
+						{!searchQuery && (
+							<button
+								onClick={() => setIsAddModalOpen(true)}
+								className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-sm"
+							>
+								<Plus className="w-4 h-4" />
+								<span>Add Your First School</span>
+							</button>
+						)}
 					</div>
 				) : (
-					<div className="mt-6 grid grid-cols-1 gap-4">
-						{filteredSchools.map((school) => {
-							const featCount = school.features
-								? Object.entries(school.features).filter(([k, v]) => v === 1 && k !== "updatedAt").length
-								: 20;
+					<div className="overflow-x-auto">
+						<table className="w-full text-left border-collapse text-xs">
+							<thead>
+								<tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-bold tracking-wider text-[10px]">
+									<th className="py-3.5 px-5">Institute Details</th>
+									<th className="py-3.5 px-5">School Code & Portal</th>
+									<th className="py-3.5 px-5">Admin Credentials</th>
+									<th className="py-3.5 px-5 text-center">Modules Active</th>
+									<th className="py-3.5 px-5 text-center">Status</th>
+									<th className="py-3.5 px-5 text-right">Actions</th>
+								</tr>
+							</thead>
+							<tbody className="divide-y divide-slate-100">
+								{filteredSchools.map((school) => {
+									const feat = school.features || {};
+									const activeCount = Object.entries(feat).filter(
+										([k, v]) => v === 1 && k !== "updatedAt" && k !== "id" && k !== "schoolId"
+									).length;
 
-							return (
-								<div
-									key={school.id}
-									className="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition-all flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6"
-								>
-									{/* School Info */}
-									<div className="flex items-start gap-4">
-										<div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-900/60 to-slate-800 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-lg shrink-0">
-											{school.name.charAt(0)}
-										</div>
+									return (
+										<tr key={school.id} className="hover:bg-slate-50/70 transition-colors">
+											{/* School Info */}
+											<td className="py-4 px-5">
+												<div className="flex items-center gap-3">
+													<div
+														className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-sm shrink-0 shadow-xs"
+														style={{ backgroundColor: school.themePrimary || "#2563eb" }}
+													>
+														{school.name.charAt(0)}
+													</div>
+													<div>
+														<div className="font-bold text-slate-900 text-sm leading-tight">
+															{school.name}
+														</div>
+														<div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
+															<MapPin className="w-3 h-3 text-slate-400" />
+															<span>{school.city || "Bangalore"}, {school.state || "Karnataka"}</span>
+															{school.brand && (
+																<span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">
+																	{school.brand}
+																</span>
+															)}
+														</div>
+													</div>
+												</div>
+											</td>
 
-										<div>
-											<div className="flex items-center gap-2 flex-wrap">
-												<h3 className="font-bold text-base text-white">{school.name}</h3>
-												<span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-													{school.code}
-												</span>
-												<span
-													className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-														school.status === "active"
-															? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-															: "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-													}`}
-												>
-													{school.status.toUpperCase()}
-												</span>
-											</div>
-
-											<div className="mt-1 flex items-center gap-4 text-xs text-slate-400 flex-wrap">
-												<span>
-													{school.city}, {school.state}
-												</span>
-												<span>•</span>
-												<span>{school.studentCount} Students</span>
-												<span>•</span>
-												<span>{school.teacherCount} Teachers</span>
-												<span>•</span>
-												<span className="text-indigo-400 font-medium">{featCount} / 20 Modules Active</span>
-											</div>
-
-											{/* Admin Credentials Badge */}
-											{school.adminUser && (
-												<div className="mt-2.5 inline-flex items-center gap-3 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-300">
-													<span className="text-slate-500">Admin Login:</span>
-													<span className="font-mono font-medium text-slate-200">
-														{school.adminUser.username}
-													</span>
-													<span className="text-slate-600">/</span>
-													<span className="font-mono text-slate-400">
-														{school.adminUser.plainPassword || "••••••••"}
+											{/* Code & 1-Click Copy */}
+											<td className="py-4 px-5">
+												<div className="flex items-center gap-2">
+													<span className="px-2.5 py-1 rounded-md font-mono text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+														{school.code}
 													</span>
 													<button
 														type="button"
-														onClick={() => handleResetAdminPassword(school)}
-														className="text-indigo-400 hover:text-indigo-300 text-[10px] font-semibold underline ml-1"
+														onClick={() => handleCopyUrl(school.code)}
+														className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition"
+														title="Copy Public Login URL"
 													>
-														Reset Pass
+														{copiedCode === school.code ? (
+															<Check className="w-3.5 h-3.5 text-emerald-600" />
+														) : (
+															<Copy className="w-3.5 h-3.5" />
+														)}
+													</button>
+													<Link
+														href={`/${school.code}/login`}
+														target="_blank"
+														className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition"
+														title="Open Portal in New Tab"
+													>
+														<ExternalLink className="w-3.5 h-3.5" />
+													</Link>
+												</div>
+												<div className="text-[10px] text-slate-400 mt-1 font-mono">
+													/{school.code}/login
+												</div>
+											</td>
+
+											{/* Admin Credentials */}
+											<td className="py-4 px-5">
+												<div className="space-y-0.5">
+													<div className="font-mono text-[11px] font-bold text-slate-800">
+														Username: {school.adminUser?.username || "Admin"}
+													</div>
+													<div className="font-mono text-[11px] text-slate-500">
+														Pass: {school.adminUser?.plainPassword || "••••••••"}
+													</div>
+												</div>
+											</td>
+
+											{/* Active Modules Badge */}
+											<td className="py-4 px-5 text-center">
+												<button
+													type="button"
+													onClick={() => openFeatureModal(school)}
+													className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition hover:scale-105 shadow-2xs border bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+												>
+													<SlidersHorizontal className="w-3 h-3" />
+													<span>{activeCount} / {MODULE_DEFINITIONS.length} Modules</span>
+												</button>
+											</td>
+
+											{/* Status */}
+											<td className="py-4 px-5 text-center">
+												<span
+													className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+														school.status === "active"
+															? "bg-emerald-50 text-emerald-700 border-emerald-200"
+															: "bg-amber-50 text-amber-700 border-amber-200"
+													}`}
+												>
+													<span
+														className={`w-1.5 h-1.5 rounded-full ${
+															school.status === "active" ? "bg-emerald-500" : "bg-amber-500"
+														}`}
+													/>
+													<span className="capitalize">{school.status || "active"}</span>
+												</span>
+											</td>
+
+											{/* Action Buttons */}
+											<td className="py-4 px-5 text-right">
+												<div className="flex items-center justify-end gap-1">
+													<button
+														type="button"
+														onClick={() => openFeatureModal(school)}
+														className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-indigo-600 transition"
+														title="Configure Enabled Modules"
+													>
+														<SlidersHorizontal className="w-3.5 h-3.5" />
+													</button>
+
+													<button
+														type="button"
+														onClick={() => handleResetPassword(school)}
+														className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-amber-600 transition"
+														title="Reset Admin Password"
+													>
+														<KeyRound className="w-3.5 h-3.5" />
+													</button>
+
+													<button
+														type="button"
+														onClick={() => handleToggleStatus(school)}
+														className={`p-1.5 rounded-lg border transition ${
+															school.status === "active"
+																? "border-slate-200 bg-white hover:bg-amber-50 text-slate-600 hover:text-amber-600"
+																: "border-slate-200 bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-600"
+														}`}
+														title={school.status === "active" ? "Suspend School" : "Activate School"}
+													>
+														{school.status === "active" ? (
+															<Ban className="w-3.5 h-3.5" />
+														) : (
+															<CheckCircle className="w-3.5 h-3.5" />
+														)}
+													</button>
+
+													<button
+														type="button"
+														onClick={() => handleDeleteSchool(school)}
+														className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition"
+														title="Delete School"
+													>
+														<Trash2 className="w-3.5 h-3.5" />
 													</button>
 												</div>
-											)}
-										</div>
-									</div>
-
-									{/* School Actions */}
-									<div className="flex items-center gap-2.5 self-stretch lg:self-auto justify-end border-t border-slate-800 lg:border-t-0 pt-3 lg:pt-0">
-										{/* Copy Login URL */}
-										<button
-											onClick={() => handleCopyUrl(school.code)}
-											className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-medium border border-slate-800 transition-colors"
-											title="Copy portal URL"
-										>
-											{copiedCode === school.code ? (
-												<>
-													<Check className="w-3.5 h-3.5 text-emerald-400" />
-													<span className="text-emerald-400 font-medium">Copied!</span>
-												</>
-											) : (
-												<>
-													<Copy className="w-3.5 h-3.5 text-slate-400" />
-													<span>Copy URL</span>
-												</>
-											)}
-										</button>
-
-										{/* Manage Features */}
-										<button
-											onClick={() => openFeatureModal(school)}
-											className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors"
-										>
-											<SlidersHorizontal className="w-3.5 h-3.5 text-indigo-400" />
-											<span>Manage Features</span>
-										</button>
-
-										{/* Launch Portal */}
-										<Link
-											href={`/${school.code}/login`}
-											target="_blank"
-											className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-colors"
-										>
-											<span>Launch</span>
-											<ExternalLink className="w-3.5 h-3.5" />
-										</Link>
-									</div>
-								</div>
-							);
-						})}
+											</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
 					</div>
 				)}
 			</div>
 
-			{/* ========================================================= */}
-			{/* MODAL 1: ADD NEW SCHOOL */}
-			{/* ========================================================= */}
+			{/* ============================================================== */}
+			{/* MODAL 1: REGISTER NEW SCHOOL (WHITE THEME)                     */}
+			{/* ============================================================== */}
 			{isAddModalOpen && (
-				<div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-					<div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto space-y-6">
-						<div className="flex items-center justify-between border-b border-slate-800 pb-4">
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+					<div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+						{/* Header */}
+						<div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
 							<div className="flex items-center gap-3">
-								<div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
-									<Building2 className="w-6 h-6" />
+								<div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+									<Building2 className="w-5 h-5" />
 								</div>
 								<div>
-									<h3 className="text-lg font-bold text-white">Register New School / Coaching Institute</h3>
-									<p className="text-xs text-slate-400">
-										Creates an isolated tenant environment, school code, admin credentials, and initial feature pack.
+									<h2 className="text-lg font-black text-slate-900 tracking-tight">
+										Register New School Tenant
+									</h2>
+									<p className="text-xs text-slate-500">
+										Create isolated institute tenant with custom URL and selected module suite.
 									</p>
 								</div>
 							</div>
 							<button
 								onClick={() => setIsAddModalOpen(false)}
-								className="text-slate-400 hover:text-white text-xl p-1"
+								className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
 							>
-								✕
+								<X className="w-5 h-5" />
 							</button>
 						</div>
 
-						<form onSubmit={handleCreateSchool} className="space-y-6">
-							{/* Institute Basics */}
+						{/* Form Content */}
+						<form onSubmit={handleCreateSchool} className="flex-1 overflow-y-auto p-6 space-y-6">
+							{/* Section 1: Basic Identity */}
 							<div>
-								<h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-3">
-									1. Institute Information
-								</h4>
+								<h3 className="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-3 flex items-center gap-1.5">
+									<Building2 className="w-3.5 h-3.5" />
+									<span>Institute Identity & Portal URL</span>
+								</h3>
 								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 									<div>
-										<label className="block text-xs font-medium text-slate-300 mb-1">
-											Institute Name *
+										<label className="block text-xs font-bold text-slate-700 mb-1">
+											School / Institute Name *
 										</label>
 										<input
 											type="text"
 											required
 											value={newSchool.name}
-											onChange={(e) => setNewSchool({ ...newSchool, name: e.target.value })}
-											placeholder="e.g. Delhi Public School Bangalore"
-											className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-indigo-500"
+											onChange={(e) => {
+												const val = e.target.value;
+												const autoCode = val.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").slice(0, 20);
+												setNewSchool({ ...newSchool, name: val, code: newSchool.code ? newSchool.code : autoCode });
+											}}
+											placeholder="e.g. Resonance Delhi, DPS Bangalore"
+											className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
 										/>
 									</div>
 
 									<div>
-										<label className="block text-xs font-medium text-slate-300 mb-1">
-											Unique School Code (Slug) *
+										<label className="block text-xs font-bold text-slate-700 mb-1">
+											Unique School Code (URL Slug) *
 										</label>
-										<div className="flex items-center">
-											<span className="px-3 py-2.5 bg-slate-800 text-slate-400 border border-r-0 border-slate-700 rounded-l-xl text-xs">
-												erp.novaxai.in/
-											</span>
+										<div className="relative">
 											<input
 												type="text"
 												required
+												pattern="^[a-z0-9-]+$"
 												value={newSchool.code}
-												onChange={(e) =>
-													setNewSchool({
-														...newSchool,
-														code: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
-													})
-												}
-												placeholder="dps-blr"
-												className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-r-xl text-xs font-mono text-indigo-300 focus:ring-2 focus:ring-indigo-500"
+												onChange={(e) => setNewSchool({ ...newSchool, code: e.target.value.toLowerCase().trim() })}
+												placeholder="e.g. resonance-delhi, zenith"
+												className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-indigo-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
 											/>
 										</div>
+										<p className="text-[10px] text-slate-400 mt-1 font-mono">
+											Login URL: /{newSchool.code || "your-code"}/login
+										</p>
 									</div>
 
 									<div>
-										<label className="block text-xs font-medium text-slate-300 mb-1">Contact Email</label>
-										<input
-											type="email"
-											value={newSchool.contactEmail}
-											onChange={(e) => setNewSchool({ ...newSchool, contactEmail: e.target.value })}
-											placeholder="admin@school.edu"
-											className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-indigo-500"
-										/>
-									</div>
-
-									<div>
-										<label className="block text-xs font-medium text-slate-300 mb-1">Contact Phone</label>
-										<input
-											type="text"
-											value={newSchool.contactPhone}
-											onChange={(e) => setNewSchool({ ...newSchool, contactPhone: e.target.value })}
-											placeholder="+91-9876543210"
-											className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-indigo-500"
-										/>
-									</div>
-
-									<div>
-										<label className="block text-xs font-medium text-slate-300 mb-1">City</label>
+										<label className="block text-xs font-bold text-slate-700 mb-1">City</label>
 										<input
 											type="text"
 											value={newSchool.city}
 											onChange={(e) => setNewSchool({ ...newSchool, city: e.target.value })}
-											className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-indigo-500"
+											placeholder="Bangalore, Delhi, Mumbai..."
+											className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
 										/>
 									</div>
 
 									<div>
-										<label className="block text-xs font-medium text-slate-300 mb-1">State</label>
+										<label className="block text-xs font-bold text-slate-700 mb-1">State</label>
 										<input
 											type="text"
 											value={newSchool.state}
 											onChange={(e) => setNewSchool({ ...newSchool, state: e.target.value })}
-											className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:ring-2 focus:ring-indigo-500"
+											placeholder="Karnataka, Delhi..."
+											className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-xs font-bold text-slate-700 mb-1">Contact Email</label>
+										<input
+											type="email"
+											value={newSchool.contactEmail}
+											onChange={(e) => setNewSchool({ ...newSchool, contactEmail: e.target.value })}
+											placeholder="contact@school.com"
+											className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-xs font-bold text-slate-700 mb-1">Tagline</label>
+										<input
+											type="text"
+											value={newSchool.tagline}
+											onChange={(e) => setNewSchool({ ...newSchool, tagline: e.target.value })}
+											placeholder="Transforming Minds Through Rigor..."
+											className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
 										/>
 									</div>
 								</div>
 							</div>
 
-							{/* School Admin Provisioning */}
-							<div className="pt-4 border-t border-slate-800">
-								<h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-3">
-									2. Initial School Administrator Credentials
-								</h4>
+							{/* Section 2: Administrator Credentials */}
+							<div className="pt-4 border-t border-slate-100">
+								<h3 className="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-3 flex items-center gap-1.5">
+									<UserCheck className="w-3.5 h-3.5" />
+									<span>Initial School Administrator Access</span>
+								</h3>
 								<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 									<div>
-										<label className="block text-xs font-medium text-slate-300 mb-1">Admin Full Name</label>
+										<label className="block text-xs font-bold text-slate-700 mb-1">Admin Full Name</label>
 										<input
 											type="text"
 											required
 											value={newSchool.adminFullName}
 											onChange={(e) => setNewSchool({ ...newSchool, adminFullName: e.target.value })}
-											className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white"
+											className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
 										/>
 									</div>
 
 									<div>
-										<label className="block text-xs font-medium text-slate-300 mb-1">Admin Username</label>
+										<label className="block text-xs font-bold text-slate-700 mb-1">Admin Username</label>
 										<input
 											type="text"
 											required
 											value={newSchool.adminUsername}
 											onChange={(e) => setNewSchool({ ...newSchool, adminUsername: e.target.value })}
-											className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-mono text-white"
+											className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
 										/>
 									</div>
 
 									<div>
-										<label className="block text-xs font-medium text-slate-300 mb-1">Initial Password</label>
+										<label className="block text-xs font-bold text-slate-700 mb-1">Admin Password</label>
 										<input
 											type="text"
 											required
 											value={newSchool.adminPassword}
 											onChange={(e) => setNewSchool({ ...newSchool, adminPassword: e.target.value })}
-											className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-mono text-white"
+											className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
 										/>
 									</div>
 								</div>
 							</div>
 
-							{/* Feature Matrix Selector */}
-							<div className="pt-4 border-t border-slate-800">
+							{/* Section 3: 20-Module Feature Matrix Selector */}
+							<div className="pt-4 border-t border-slate-100">
 								<div className="flex items-center justify-between mb-3">
-									<div>
-										<h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400">
-											3. Select Features to Grant to this School
-										</h4>
-										<p className="text-[11px] text-slate-400">
-											Only selected features will be visible in their admin, teacher, and student portals.
-										</p>
-									</div>
+									<h3 className="text-xs font-bold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5">
+										<Layers className="w-3.5 h-3.5" />
+										<span>Subscribed Module Matrix (20 Features)</span>
+									</h3>
 
-									<div className="flex items-center gap-2 text-xs">
+									<div className="flex items-center gap-2">
 										<button
 											type="button"
 											onClick={() => {
 												const allOn = MODULE_DEFINITIONS.reduce((acc, m) => ({ ...acc, [m.key]: 1 }), {});
 												setNewSchoolFeatures(allOn);
 											}}
-											className="px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 font-semibold hover:bg-indigo-500/30 text-[11px]"
+											className="px-2 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold"
 										>
-											Select All (20)
+											Select All
 										</button>
 										<button
 											type="button"
 											onClick={() => {
-												// Core only preset
-												const coreOnly = MODULE_DEFINITIONS.reduce(
+												const core = MODULE_DEFINITIONS.reduce(
 													(acc, m) => ({
 														...acc,
 														[m.key]: ["academic", "students", "teachers", "attendance", "fees", "notices"].includes(m.key) ? 1 : 0,
 													}),
 													{}
 												);
-												setNewSchoolFeatures(coreOnly);
+												setNewSchoolFeatures(core);
 											}}
-											className="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 text-[11px]"
+											className="px-2 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold"
 										>
-											Core Only (6)
+											Core Only
 										</button>
 									</div>
 								</div>
 
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-64 overflow-y-auto p-1 bg-slate-950/40 rounded-2xl border border-slate-800">
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
 									{MODULE_DEFINITIONS.map((mod) => {
 										const isChecked = newSchoolFeatures[mod.key] === 1;
 										return (
 											<label
 												key={mod.key}
-												className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+												className={`flex items-start gap-3 p-3 rounded-xl border transition cursor-pointer ${
 													isChecked
-														? "bg-indigo-950/30 border-indigo-500/40 text-slate-100"
-														: "bg-slate-950/20 border-slate-800 text-slate-400"
+														? "bg-indigo-50/50 border-indigo-200 text-slate-900"
+														: "bg-slate-50 border-slate-200 text-slate-500 opacity-60"
 												}`}
 											>
 												<input
 													type="checkbox"
 													checked={isChecked}
-													onChange={(e) =>
+													onChange={(e) => {
 														setNewSchoolFeatures({
 															...newSchoolFeatures,
 															[mod.key]: e.target.checked ? 1 : 0,
-														})
-													}
-													className="mt-1 w-4 h-4 rounded border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-900"
+														});
+													}}
+													className="mt-0.5 w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
 												/>
-												<div>
-													<div className="text-xs font-semibold">{mod.label}</div>
-													<div className="text-[10px] text-slate-500">{mod.desc}</div>
+												<div className="flex-1 min-w-0">
+													<div className="flex items-center justify-between">
+														<span className="font-bold text-xs">{mod.label}</span>
+														<span className="text-[10px] uppercase font-semibold px-1.5 py-0.2 rounded bg-white border border-slate-200 text-slate-600">
+															{mod.category}
+														</span>
+													</div>
+													<p className="text-[11px] text-slate-500 truncate mt-0.5">{mod.desc}</p>
 												</div>
 											</label>
 										);
@@ -642,19 +816,20 @@ export default function SuperAdminDashboard() {
 								</div>
 							</div>
 
-							<div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+							{/* Actions */}
+							<div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3 sticky bottom-0 bg-white py-2">
 								<button
 									type="button"
 									onClick={() => setIsAddModalOpen(false)}
-									className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 transition-colors"
+									className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition"
 								>
 									Cancel
 								</button>
 								<button
 									type="submit"
-									className="px-6 py-2.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20 transition-all"
+									className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-md shadow-indigo-600/20 active:scale-95"
 								>
-									Confirm & Launch School
+									Provision School Tenant
 								</button>
 							</div>
 						</form>
@@ -662,37 +837,38 @@ export default function SuperAdminDashboard() {
 				</div>
 			)}
 
-			{/* ========================================================= */}
-			{/* MODAL 2: MANAGE SCHOOL FEATURES */}
-			{/* ========================================================= */}
+			{/* ============================================================== */}
+			{/* MODAL 2: EDIT MODULE MATRIX FOR SCHOOL (WHITE THEME)           */}
+			{/* ============================================================== */}
 			{isFeatureModalOpen && selectedSchool && (
-				<div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-					<div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto space-y-6">
-						<div className="flex items-center justify-between border-b border-slate-800 pb-4">
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+					<div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+						{/* Header */}
+						<div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
 							<div className="flex items-center gap-3">
-								<div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+								<div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
 									<SlidersHorizontal className="w-5 h-5" />
 								</div>
 								<div>
-									<h3 className="text-base font-bold text-white">
-										Manage Features for: {selectedSchool.name}
-									</h3>
-									<p className="text-xs text-slate-400">
-										Toggle features ON or OFF in real-time. Disabled features disappear immediately from this school's portals.
+									<h2 className="text-lg font-black text-slate-900 tracking-tight">
+										Configure Module Entitlements
+									</h2>
+									<p className="text-xs text-slate-500">
+										Tenant: <strong className="text-slate-800">{selectedSchool.name}</strong> ({selectedSchool.code})
 									</p>
 								</div>
 							</div>
 							<button
 								onClick={() => setIsFeatureModalOpen(false)}
-								className="text-slate-400 hover:text-white text-xl p-1"
+								className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
 							>
-								✕
+								<X className="w-5 h-5" />
 							</button>
 						</div>
 
-						{/* Quick Presets */}
-						<div className="flex items-center justify-between text-xs bg-slate-950 p-3 rounded-xl border border-slate-800">
-							<span className="text-slate-400 font-medium">Bulk Action Presets:</span>
+						{/* Presets & Controls */}
+						<div className="px-6 py-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs">
+							<span className="font-semibold text-slate-500">Quick Presets:</span>
 							<div className="flex items-center gap-2">
 								<button
 									type="button"
@@ -700,9 +876,9 @@ export default function SuperAdminDashboard() {
 										const allOn = MODULE_DEFINITIONS.reduce((acc, m) => ({ ...acc, [m.key]: 1 }), {});
 										setFeatureEditMap(allOn);
 									}}
-									className="px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 font-semibold hover:bg-indigo-500/30 text-[11px]"
+									className="px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px]"
 								>
-									Enable All (Full Suite)
+									Enable All (20)
 								</button>
 								<button
 									type="button"
@@ -716,74 +892,72 @@ export default function SuperAdminDashboard() {
 										);
 										setFeatureEditMap(core);
 									}}
-									className="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 text-[11px]"
+									className="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px]"
 								>
-									Basic Core
+									Core Modules Only
 								</button>
 							</div>
 						</div>
 
-						{/* Feature List */}
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto p-1">
+						{/* Module List with Toggles */}
+						<div className="flex-1 overflow-y-auto p-6 space-y-2.5">
 							{MODULE_DEFINITIONS.map((mod) => {
 								const isEnabled = featureEditMap[mod.key] === 1;
 								return (
 									<div
 										key={mod.key}
-										onClick={() =>
-											setFeatureEditMap({
-												...featureEditMap,
-												[mod.key]: isEnabled ? 0 : 1,
-											})
-										}
-										className={`p-3.5 rounded-xl border cursor-pointer select-none transition-all flex items-center justify-between gap-3 ${
-											isEnabled
-												? "bg-indigo-950/20 border-indigo-500/30 text-white"
-												: "bg-slate-950/40 border-slate-800 text-slate-500 opacity-60"
+										className={`p-3.5 rounded-2xl border transition flex items-center justify-between ${
+											isEnabled ? "bg-white border-slate-200 shadow-2xs" : "bg-slate-50/70 border-slate-200 opacity-60"
 										}`}
 									>
 										<div>
-											<div className="text-xs font-semibold flex items-center gap-1.5">
-												<span>{mod.label}</span>
-												{mod.category === "AI Suite" && (
-													<span className="px-1.5 py-0.2 bg-purple-500/20 text-purple-300 text-[9px] rounded font-bold">
-														AI
-													</span>
-												)}
+											<div className="flex items-center gap-2">
+												<span className="font-bold text-slate-900 text-xs">{mod.label}</span>
+												<span className="text-[10px] font-semibold px-2 py-0.2 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+													{mod.category}
+												</span>
 											</div>
-											<div className="text-[10px] text-slate-400 mt-0.5">{mod.desc}</div>
+											<p className="text-[11px] text-slate-500 mt-0.5">{mod.desc}</p>
 										</div>
 
-										<div
-											className={`w-11 h-6 rounded-full transition-colors p-0.5 shrink-0 ${
-												isEnabled ? "bg-indigo-600" : "bg-slate-800"
+										<button
+											type="button"
+											onClick={() => {
+												setFeatureEditMap({
+													...featureEditMap,
+													[mod.key]: isEnabled ? 0 : 1,
+												});
+											}}
+											className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+												isEnabled ? "bg-indigo-600" : "bg-slate-300"
 											}`}
 										>
-											<div
-												className={`w-5 h-5 rounded-full bg-white transition-transform ${
+											<span
+												className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
 													isEnabled ? "translate-x-5" : "translate-x-0"
 												}`}
-											></div>
-										</div>
+											/>
+										</button>
 									</div>
 								);
 							})}
 						</div>
 
-						<div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+						{/* Footer */}
+						<div className="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3 bg-slate-50/70">
 							<button
 								type="button"
 								onClick={() => setIsFeatureModalOpen(false)}
-								className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800"
+								className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-bold transition"
 							>
 								Cancel
 							</button>
 							<button
 								type="button"
 								onClick={handleSaveFeatures}
-								className="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20"
+								className="px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-sm active:scale-95"
 							>
-								Save Feature Changes
+								Save Module Entitlements
 							</button>
 						</div>
 					</div>
